@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyKiosk.Core", "EasyKiosk.Core\EasyKiosk.Core.csproj", "{16132485-A3B0-405C-9F1C-499D87A0009B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{16132485-A3B0-405C-9F1C-499D87A0009B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16132485-A3B0-405C-9F1C-499D87A0009B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16132485-A3B0-405C-9F1C-499D87A0009B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16132485-A3B0-405C-9F1C-499D87A0009B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
