@@ -1,0 +1,138 @@
+@page "/Menu"
+@rendermode InteractiveServer
+
+@using System.Reflection.Metadata
+@using Blazor.Bootstrap.Icons.Components
+@using EasyKiosk.Server.Manager.Components
+@using Blazored.FluentValidation
+
+
+<Popup @ref="_popup">
+    
+    @if (_selectedProduct is not null)
+    {
+        <EditForm Model=@_selectedProduct class="p-1" OnValidSubmit="@_formSubmitHandler">
+            <FluentValidationValidator/>
+            <div class="d-flex flex-column my-1">
+                <label for="Name">Name</label>
+                <InputText id="Name" @bind-Value="_selectedProduct.Name"/>
+            </div>
+
+            <div class="d-flex flex-column mb-1">
+                <label for="ProductPrice">Price</label>
+                <InputNumber id="ProductPrice" @bind-Value="_selectedProduct.Price"/>
+            </div>
+
+            <div class="d-flex flex-column mb-1">
+                <label for="">Category</label>
+                <InputSelect @bind-Value="_selectedProduct.CategoryId">
+                    @if (_selectedProduct.CategoryId == 0)
+                    {
+                        <option selected value="0">Select A Category....</option>
+                    }
+                    else
+                    {
+                        <option selected value="@_selectedProduct.CategoryId">@_categories.GetById(_selectedProduct.CategoryId).Name</option>
+                    }
+                    @foreach (var category in _categories.GetAll())
+                    {
+                        if (category.Id != _selectedProduct.CategoryId)
+                        {
+                            <option value="@category.Id">@category.Name</option>
+                        }
+                    }
+                </InputSelect>
+            </div>
+            
+            <div class="d-flex flex-column mb-1">
+                <label for="ProductDescription">Description</label>
+                <InputTextArea id="ProductDescription" @bind-Value="_selectedProduct.Description"/>
+            </div>
+
+            
+            <input type="submit" class="btn btn-primary">@(_formLoading ? "Loading" : "Create")
+        </EditForm>
+    }
+    
+</Popup>
+
+    <div class="col-9 d-flex flex-column">
+
+        
+        <div class="h-25 bg-dark">
+            <h1> CARDS </h1>
+        </div>
+
+
+        
+        
+        <div class="flex-grow-1 m-4">
+            
+            <div class="container-fluid h-100 d-flex flex-column border rounded">
+
+                <div class="d-flex justify-content-between align-items-center bg-light p-3 border-bottom rounded-top">
+
+                    <div>
+                        <input value="Search..." type="text"/>
+
+                    </div>
+
+
+                    <div class="align-content-stretch">
+                        <button class="btn btn-success" @onclick="AddProductHandler">A</button>
+                        <div class="btn btn-danger text-white" @onclick="DeleteCheckedProducts"><BiTrashFill/></div>
+                    </div>
+
+                </div>
+
+                <div class="flex-grow-1">
+                    
+                    <table class="table">
+                        
+                        <thead>
+                        <tr>
+                            <th/>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Price</th>
+                            <th>Category</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var product in _products.GetAll())
+                            {
+                                <tr>
+                                    <td><input type="checkbox" checked="@(_checkedProducts?.Contains(product))" oninput=@(() => ProductCheckboxHandler(product))/></td>
+                                    <td>@product.Name</td>
+                                    <td>@product.Description</td>
+                                    <td>@product.Price</td>
+                                    <td>@_categories.GetById(product.CategoryId).Name</td>
+                                    <td><button class="btn btn-warning text-white" onclick="@(() => EditProductHandler(product))"><BiPencilSquare/></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                        
+                        
+                    </table>
+                    
+                    
+                    
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    <div class="bg-light col-3">
+        <h1>SECOND COL</h1>
+    </div>
+    
+    
+    
+    
+
+
+
+

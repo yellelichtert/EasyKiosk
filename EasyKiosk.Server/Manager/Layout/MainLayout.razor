@@ -1,0 +1,29 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page overflow-hidden">
+    
+    <div class="sidebar">
+        <NavMenu/>
+    </div>
+
+    <main class="d-flex flex-column w-auto">
+        <div class="top-row">
+            <p>User Data</p>
+        </div>
+
+        
+        <div class="container-fluid d-flex h-100 w-100 position-relative">
+            
+            @Body
+            
+        </div>
+        
+        
+    </main>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
