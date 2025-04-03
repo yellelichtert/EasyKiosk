@@ -1,8 +1,10 @@
 using System.Diagnostics;
+using System.IO.Pipelines;
 using EasyKiosk.Core.Entities;
 using EasyKiosk.Core.Repositories;
 using EasyKiosk.Server.Manager.Components;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace EasyKiosk.Server.Manager.Pages;
 
@@ -19,7 +21,9 @@ public partial class Menu : ComponentBase
     private Func<Task> _formSubmitHandler;
     private bool _formLoading;
 
-   
+    private string? _formImgPath;
+    private long _maxfileSize = 1024 * 400;
+    private bool _imageLoading;
     
     
     public Menu(IProductRepository products, ICategoryRepository categories)
@@ -123,5 +127,20 @@ public partial class Menu : ComponentBase
             _checkedProducts.Add(product);
         }
     }
-    
+
+
+    private async Task LoadImage(InputFileChangeEventArgs args)
+    {
+        var file = args.File;
+        
+        using (var memory = new MemoryStream())
+        {
+            var read = file.OpenReadStream(_maxfileSize);
+            
+            await read.CopyToAsync(memory);
+            
+            var base64 = Convert.ToBase64String(memory.ToArray());
+            _formImgPath = $"data:image/{file.Name.Split(".")[1]};base64,{base64}";
+        }
+    }
 }

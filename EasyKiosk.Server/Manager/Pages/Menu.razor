@@ -13,40 +13,69 @@
     {
         <EditForm Model=@_selectedProduct class="p-1" OnValidSubmit="@(async () => await _formSubmitHandler())">
             <FluentValidationValidator/>
-            <div class="d-flex flex-column my-1">
-                <label for="Name">Name</label>
-                <InputText id="Name" @bind-Value="_selectedProduct.Name"/>
-            </div>
-
-            <div class="d-flex flex-column mb-1">
-                <label for="ProductPrice">Price</label>
-                <InputNumber id="ProductPrice" @bind-Value="_selectedProduct.Price"/>
-            </div>
-
-            <div class="d-flex flex-column mb-1">
-                <label for="">Category</label>
-                <InputSelect @bind-Value="_selectedProduct.CategoryId">
-                    @if (_selectedProduct.CategoryId == 0)
-                    {
-                        <option selected value="0">Select A Category....</option>
-                    }
-                    else
-                    {
-                        <option selected value="@_selectedProduct.CategoryId">@_categories.GetById(_selectedProduct.CategoryId).Name</option>
-                    }
-                    @foreach (var category in _categories.GetAll())
-                    {
-                        if (category.Id != _selectedProduct.CategoryId)
-                        {
-                            <option value="@category.Id">@category.Name</option>
-                        }
-                    }
-                </InputSelect>
-            </div>
             
-            <div class="d-flex flex-column mb-1">
-                <label for="ProductDescription">Description</label>
-                <InputTextArea id="ProductDescription" @bind-Value="_selectedProduct.Description"/>
+            <div class="d-flex">
+                
+                <div>
+                    <div class="d-flex flex-column my-1">
+                        <label for="Name">Name</label>
+                        <InputText id="Name" @bind-Value="_selectedProduct.Name"/>
+                    </div>
+
+                    <div class="d-flex flex-column mb-1">
+                        <label for="ProductPrice">Price</label>
+                        <InputNumber id="ProductPrice" @bind-Value="_selectedProduct.Price"/>
+                    </div>
+
+                    <div class="d-flex flex-column mb-1">
+                        <label for="">Category</label>
+                        <InputSelect @bind-Value="_selectedProduct.CategoryId">
+                            @if (_selectedProduct.CategoryId == 0)
+                            {
+                                <option selected value="0">Select A Category....</option>
+                            }
+                            else
+                            {
+                                <option selected value="@_selectedProduct.CategoryId">@_categories.GetById(_selectedProduct.CategoryId).Name</option>
+                            }
+                            @foreach (var category in _categories.GetAll())
+                            {
+                                if (category.Id != _selectedProduct.CategoryId)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <div class="d-flex flex-column mb-1">
+                        <label for="ProductDescription">Description</label>
+                        <InputTextArea id="ProductDescription" @bind-Value="_selectedProduct.Description"/>
+                    </div>
+                </div>
+                
+                
+                <div class="w-50 m-3 d-flex flex-column">
+
+                    <div>
+                        @if (_imageLoading)
+                        {
+                            <p>Uploading....</p>
+                        }
+                        else if (_formImgPath == null)
+                        {
+                            <p>Upload an image....</p>
+                        }
+                        else
+                        {
+                            <img src="@_formImgPath" class="img-fluid" alt="Uploaded image"/>
+                        }
+                    </div>
+                    
+                    
+                    <InputFile OnChange="LoadImage" accept=".jpg, .jpeg, .png, .svg"/>
+                </div>
+                
             </div>
 
             
@@ -59,8 +88,13 @@
     <div class="col-9 d-flex flex-column">
 
         
-        <div class="h-25 bg-dark">
-            <h1> CARDS </h1>
+        <div class="h-25 p-5 d-flex justify-content-evenly" style="z-index: inherit">
+            
+            <StatCard Value="@_products.GetAll().Length">Total Products: </StatCard>
+            <StatCard Value="@_categories.GetAll().Length">Total Categories: </StatCard>
+            <StatCard Value="@("xx")">XXXXXXXX: </StatCard>
+            <StatCard Value="@("xx")">XXXXXXXX: </StatCard>
+            
         </div>
 
 
