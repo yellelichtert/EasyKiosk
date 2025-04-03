@@ -11,7 +11,7 @@
     
     @if (_selectedProduct is not null)
     {
-        <EditForm Model=@_selectedProduct class="p-1" OnValidSubmit="@_formSubmitHandler">
+        <EditForm Model=@_selectedProduct class="p-1" OnValidSubmit="@(async () => await _formSubmitHandler())">
             <FluentValidationValidator/>
             <div class="d-flex flex-column my-1">
                 <label for="Name">Name</label>
@@ -79,8 +79,8 @@
 
 
                     <div class="align-content-stretch">
-                        <button class="btn btn-success" @onclick="AddProductHandler">A</button>
-                        <div class="btn btn-danger text-white" @onclick="DeleteCheckedProducts"><BiTrashFill/></div>
+                        <button class="btn btn-success" @onclick="AddProductHandler"><BiPlusLg/></button>
+                        <div class="btn btn-danger text-white" @onclick="(async () => await DeleteCheckedProducts())"><BiTrashFill/></div>
                     </div>
 
                 </div>
@@ -96,13 +96,14 @@
                             <th>Description</th>
                             <th>Price</th>
                             <th>Category</th>
+                            <th/>
                         </tr>
                         </thead>
                         <tbody>
                             @foreach (var product in _products.GetAll())
                             {
                                 <tr>
-                                    <td><input type="checkbox" checked="@(_checkedProducts?.Contains(product))" oninput=@(() => ProductCheckboxHandler(product))/></td>
+                                    <td><input @key="product.Id" type="checkbox" onchange=@(() => ProductCheckboxHandler(product))></td>
                                     <td>@product.Name</td>
                                     <td>@product.Description</td>
                                     <td>@product.Price</td>

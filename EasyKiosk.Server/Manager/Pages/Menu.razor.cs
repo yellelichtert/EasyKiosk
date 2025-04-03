@@ -12,7 +12,7 @@ public partial class Menu : ComponentBase
     private IProductRepository _products;
     private ICategoryRepository _categories;
 
-    private List<Product>? _checkedProducts;
+    private List<Product> _checkedProducts;
     private Product? _selectedProduct;
     private Popup _popup;
 
@@ -26,6 +26,8 @@ public partial class Menu : ComponentBase
     {
         _products = products;
         _categories = categories;
+
+        _checkedProducts = new();
     }
 
     
@@ -36,7 +38,7 @@ public partial class Menu : ComponentBase
     {
         _selectedProduct = product;
 
-        _formSubmitHandler = UpdateProductInDb;
+        _formSubmitHandler = UpdateProductInDbAsync;
         _popup.UpdateTitle("Edit Product");
         _popup.Show();
     }
@@ -57,10 +59,10 @@ public partial class Menu : ComponentBase
     
     
     
-    private async Task UpdateProductInDb()
+    private async Task UpdateProductInDbAsync()
     {
         _formLoading = true;
-        await _products.UpdateAsync(_selectedProduct); 
+        await _products.UpdateAsync(_selectedProduct!); 
         ResetPopup();
     }
 
@@ -71,7 +73,7 @@ public partial class Menu : ComponentBase
     private async Task AddProductToDbAsync()
     {
         _formLoading = true;
-        await _products.AddAsync(_selectedProduct);
+        await _products.AddAsync(_selectedProduct!);
         ResetPopup();
     }
 
@@ -91,11 +93,16 @@ public partial class Menu : ComponentBase
     
     private async Task DeleteCheckedProducts()
     {
-        if (_checkedProducts is null || _checkedProducts.Count == 0)
+        if (_checkedProducts.Count == 0)
             return;
         
+        if (_checkedProducts.Count == 1)
         {
-            await _products.DeleteAsync(_checkedProducts);
+            await _products.DeleteAsync(_checkedProducts.First());
+        }
+        else
+        { 
+             await _products.DeleteAsync(_checkedProducts);
         }
 
         _checkedProducts = new List<Product>();
@@ -107,19 +114,14 @@ public partial class Menu : ComponentBase
     
     private void ProductCheckboxHandler(Product product)
     {
-        if (_checkedProducts == null)
-        {
-            _checkedProducts = new List<Product>() { product };
-        }
-        else if (_checkedProducts != null && _checkedProducts.Contains(product))
+        if (_checkedProducts.Contains(product))
         {
             _checkedProducts.Remove(product);
         }
         else
-        {
+        { 
             _checkedProducts.Add(product);
         }
-       
     }
     
 }
