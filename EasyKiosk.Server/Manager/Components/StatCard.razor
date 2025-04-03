@@ -1,0 +1,19 @@
+@typeparam T
+
+<div class="d-flex border rounded px-3 py-4 flex-column justify-content-between w-100 h-100 m-3">
+    
+    <h4>@ChildContent</h4>
+    <h1 class="text-end px-3">@Value?.ToString()</h1>
+    
+</div>
+
+
+
+@code {
+    
+    [Parameter]
+    public required RenderFragment ChildContent { get; set; }
+    
+    [Parameter]
+    public required T Value { get; set; }
+}
