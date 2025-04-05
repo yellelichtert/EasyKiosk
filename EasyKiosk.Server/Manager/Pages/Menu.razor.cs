@@ -68,6 +68,9 @@ public partial class Menu : ComponentBase
         _formLoading = true;
         await _products.UpdateAsync(_selectedProduct!); 
         ResetPopup();
+        
+        //todo: decode image string back to original bytes
+        //todo: upload file to server
     }
 
     
@@ -132,6 +135,9 @@ public partial class Menu : ComponentBase
     private async Task LoadImage(InputFileChangeEventArgs args)
     {
         var file = args.File;
+        
+        //Iets anders als memoryStream?
+        //memorystream maak foto heeeeel groot
         
         using (var memory = new MemoryStream())
         {
