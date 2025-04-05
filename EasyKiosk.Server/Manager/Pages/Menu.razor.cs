@@ -16,6 +16,9 @@ public partial class Menu : ComponentBase
 
     private List<Product> _checkedProducts;
     private Product? _selectedProduct;
+
+    private Category? _selectedCategory;
+    
     private Popup _popup;
 
     private Func<Task> _formSubmitHandler;
@@ -35,26 +38,23 @@ public partial class Menu : ComponentBase
     }
 
 
-
-    private void OnPopupClose()
-    {
-        _selectedProduct = null;
-        _formImgPath = null;
-        _formLoading = false;
-    }
     
-
-   
     
-    private void OpenProductForm(Product? product = null)
+    //
+    //Product Related
+    //
+
+    private void OpenProductForm() => OpenProductForm(new Product());
+    private void OpenProductForm(Product product)
     {
-        _selectedProduct = product ?? new();
+        _selectedProduct = product;
         
-        _popup.UpdateTitle( product == null ? "Add Product" : "Edit Product");
+        _popup.UpdateTitle( product.Id == Guid.Empty ? "Add Product" : "Edit Product");
         _popup.Show();
     }
-
-
+    
+    
+    
     private async Task HandleProductSubmit()
     {
         _formLoading = true;
@@ -78,8 +78,7 @@ public partial class Menu : ComponentBase
     
     
     
-    
-    private async Task DeleteCheckedProducts()
+    private async void DeleteCheckedProducts()
     {
         if (_checkedProducts.Count == 0)
             return;
@@ -98,8 +97,6 @@ public partial class Menu : ComponentBase
     
     
     
-    
-    
     private void ProductCheckboxHandler(Product product)
     {
         if (_checkedProducts.Contains(product))
@@ -112,7 +109,64 @@ public partial class Menu : ComponentBase
         }
     }
 
+    
+    
+    //
+    //Category Related
+    //
+    private void OpenCategoryForm() => OpenCategoryForm(new());
+    private void OpenCategoryForm(Category category)
+    {
+        _selectedCategory = category;
+        
+        _popup.UpdateTitle( category.Id == Guid.Empty ? "Add Category" : "Edit Category");
+        _popup.Show();
+    }
 
+
+    private async Task HandleCategorySubmit()
+    {
+        //Method should work but is untested
+        //Validator needs to be implemented
+        throw new NotImplementedException();
+        
+        
+        _formLoading = true;
+        
+        if (_formImgPath is not null)
+        {
+            _selectedCategory!.Img = _formImgPath;
+        }
+        
+        if (_selectedCategory.Id == Guid.Empty)
+        {
+            await _categories.AddAsync(_selectedCategory);
+        }
+        else
+        {
+            await _categories.UpdateAsync(_selectedCategory);
+        }
+        
+        _popup.Close();
+    }
+    
+    
+    
+    
+    //
+    //Common Methods
+    //
+    
+    private void OnPopupClose()
+    {
+        _selectedProduct = null;
+        _selectedCategory = null;
+        _formImgPath = null;
+        _formLoading = false;
+    }
+    
+    
+    
     private async Task LoadImage(InputFileChangeEventArgs args)
     {
         var file = args.File;
@@ -128,5 +182,4 @@ public partial class Menu : ComponentBase
             _formImgPath = $"data:image/{file.Name.Split(".")[1]};base64,{base64}";
         }
     }
-    
 }

@@ -1,10 +1,11 @@
 @page "/Menu"
 @rendermode InteractiveServer
 
-@using System.Reflection.Metadata
 @using Blazor.Bootstrap.Icons.Components
 @using EasyKiosk.Server.Manager.Components
 @using Blazored.FluentValidation
+@using EasyKiosk.Core.Entities
+
 
 @code {
 
@@ -13,70 +14,90 @@
 
 <Popup @ref="_popup" OnCloseHandler="@OnPopupClose">
     
-    @if (_selectedProduct is not null)
+    @if (_selectedProduct is not null || _selectedCategory is not null)
     {
-        <EditForm Model=@_selectedProduct class="p-1" OnValidSubmit="HandleProductSubmit">
-            <FluentValidationValidator/>
-            
-            <div class="d-flex">
+            <div class="d-flex @(_selectedCategory != null? "flex-column-reverse" : null)">
                 
-                <div class="col-6 mx-1">
-                    <div class="d-flex flex-column  my-1">
-                        <label for="Name">Name</label>
-                        <InputText id="Name" @bind-Value="_selectedProduct.Name"/>
-                    </div>
+                @if (_selectedProduct is not null)
+                {
+                    <EditForm Model=@_selectedProduct class="p-1 col-6" OnValidSubmit="HandleProductSubmit">
+                    <FluentValidationValidator/>
+                    
+                        <div class="d-flex flex-column  my-1">
+                            <label for="Name">Name</label>
+                            <InputText id="Name" @bind-Value="_selectedProduct.Name"/>
+                        </div>
 
-                    <div class="d-flex flex-column mb-1">
-                        <label for="ProductPrice">Price</label>
-                        <InputNumber id="ProductPrice" @bind-Value="_selectedProduct.Price"/>
-                    </div>
+                        <div class="d-flex flex-column mb-1">
+                            <label for="ProductPrice">Price</label>
+                            <InputNumber id="ProductPrice" @bind-Value="_selectedProduct.Price"/>
+                        </div>
 
-                    <div class="d-flex flex-column mb-1">
-                        <label for="">Category</label>
-                        <InputSelect @bind-Value="_selectedProduct.CategoryId">
-                            @if (_selectedProduct.CategoryId == Guid.Empty)
-                            {
-                                <option selected value="0">Select A Category....</option>
-                            }
-                            else
-                            {
-                                <option selected value="@_selectedProduct.CategoryId">@_categories.GetById(_selectedProduct.CategoryId).Name</option>
-                            }
-                            @foreach (var category in _categories.GetAll())
-                            {
-                                if (category.Id != _selectedProduct.CategoryId)
+                        <div class="d-flex flex-column mb-1">
+                            <label for="">Category</label>
+                            <InputSelect @bind-Value="_selectedProduct.CategoryId">
+                                @if (_selectedProduct.CategoryId == Guid.Empty)
                                 {
-                                    <option value="@category.Id">@category.Name</option>
+                                    <option selected value="0">Select A Category....</option>
                                 }
-                            }
-                        </InputSelect>
-                    </div>
+                                else
+                                {
+                                    <option selected value="@_selectedProduct.CategoryId">@_categories.GetById(_selectedProduct.CategoryId).Name</option>
+                                }
+                                @foreach (var category in _categories.GetAll())
+                                {
+                                    if (category.Id != _selectedProduct.CategoryId)
+                                    {
+                                        <option value="@category.Id">@category.Name</option>
+                                    }
+                                }
+                            </InputSelect>
+                        </div>
 
-                    <div class="d-flex flex-column mb-1">
-                        <label for="ProductDescription">Description</label>
-                        <InputTextArea id="ProductDescription" @bind-Value="_selectedProduct.Description"/>
-                    </div>
-                </div>
+                        <div class="d-flex flex-column mb-1">
+                            <label for="ProductDescription">Description</label>
+                            <InputTextArea id="ProductDescription" @bind-Value="_selectedProduct.Description"/>
+                        </div>
+
+                        <input type="submit" class="btn btn-primary">@(_formLoading ? "Loading" : "Create")
+                        
+                    </EditForm>
+                }
+                else if (_selectedCategory is not null)
+                { 
+                    <EditForm Model=@_selectedCategory class="p-1 col-6" OnValidSubmit="HandleCategorySubmit">
+                    <FluentValidationValidator/>
+                    
+                        <div class="d-flex flex-column  my-1">
+                            <label for="Name">Name</label>
+                            <InputText id="Name" @bind-Value="_selectedCategory.Name"/>
+                        </div>
+                        
+                        
+                        <input type="submit" class="btn btn-primary">@(_formLoading ? "Loading" : "Create")
+                </EditForm>
+                }
                 
                 
-                <div class="col-6 d-flex flex-column justify-content-between mx-1">
-
+                @* Image selection *@
+                <div class="container-fluid d-flex flex-column justify-content-between mx-1">
+                    
                    
                         @if (_imageLoading)
                         {
                             <p>Uploading....</p>
                         }
-                        else if (_formImgPath == null && string.IsNullOrEmpty(_selectedProduct.Img))
+                        else if (_formImgPath == null && string.IsNullOrEmpty(_selectedProduct != null ? _selectedProduct?.Img : _selectedCategory.Img))
                         {
                             <p>Upload an image....</p>
                         }
                         else if (_formImgPath is not null)
                         {
-                            <img src="@_formImgPath" class="img-thumbnail mh-100"   alt="Uploaded image"/> 
+                            <img src="@_formImgPath" class="img-thumbnail@(_selectedCategory != null? "mh-100" : "mw-100")"   alt="Uploaded image"/> 
                         }
                         else
                         {
-                            <img src="@_selectedProduct.Img" class="img-thumbnail mh-100"   alt="Uploaded image"/> 
+                            <img src="@(_selectedProduct != null ? _selectedProduct.Img : _selectedCategory!.Img)" class="img-thumbnail mh-100"   alt="Uploaded image"/> 
                         }
                   
                     
@@ -85,17 +106,16 @@
                 </div>
                 
             </div>
-
-            
-            <input type="submit" class="btn btn-primary">@(_formLoading ? "Loading" : "Create")
-        </EditForm>
+        // </EditForm>
     }
     
 </Popup>
 
+
+    @* Product table & Statcards *@
     <div class="col-9 d-flex flex-column">
 
-        
+        @* Statcards *@
         <div class="h-25 p-5 d-flex justify-content-evenly" style="z-index: inherit">
             
             <StatCard Value="@_products.GetAll().Length">Total Products: </StatCard>
@@ -105,71 +125,64 @@
             
         </div>
 
-
         
-        
-        <div class="flex-grow-1 m-4">
-            
-            <div class="container-fluid h-100 d-flex flex-column border rounded">
-
-                <div class="d-flex justify-content-between align-items-center bg-light p-3 border-bottom rounded-top">
-
-                    <div>
-                        <input value="Search..." type="text"/>
-
-                    </div>
-
-
-                    <div class="align-content-stretch">
-                        <button class="btn btn-success" onclick="@(() => OpenProductForm())"><BiPlusLg/></button>
-                        <div class="btn btn-danger text-white" @onclick="(async () => await DeleteCheckedProducts())"><BiTrashFill/></div>
-                    </div>
-
-                </div>
-
-                <div class="flex-grow-1">
-                    
-                    <table class="table">
-                        
-                        <thead>
+        <div class="flex-grow-1 p-5">
+            <EntityList CreateHandler="@OpenProductForm" DeleteHandler="@DeleteCheckedProducts">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th/>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th/>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (Product product in _products.GetAll())
+                    {
                         <tr>
-                            <th/>
-                            <th>Name</th>
-                            <th>Description</th>
-                            <th>Price</th>
-                            <th>Category</th>
-                            <th/>
+                            <td><input @key="product.Id" type="checkbox" onchange=@(() => ProductCheckboxHandler(product))></td>
+                            <td>@product.Name</td>
+                            <td>@product.Description</td>
+                            <td>@product.Price</td>
+                            <td>@_categories.GetById(product.CategoryId).Name</td>
+                            <td><button class="btn btn-warning text-white" onclick="@(() => OpenProductForm(product))"><BiPencilSquare/></button></td>
                         </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var product in _products.GetAll())
-                            {
-                                <tr>
-                                    <td><input @key="product.Id" type="checkbox" onchange=@(() => ProductCheckboxHandler(product))></td>
-                                    <td>@product.Name</td>
-                                    <td>@product.Description</td>
-                                    <td>@product.Price</td>
-                                    <td>@_categories.GetById(product.CategoryId).Name</td>
-                                    <td><button class="btn btn-warning text-white" onclick="@(() => OpenProductForm(product))"><BiPencilSquare/></button></td>
-                                </tr>
-                            }
-                        </tbody>
-                        
-                        
-                    </table>
-                    
-                    
-                    
-                </div>
-
-            </div>
+                    }
+                    </tbody>
+                </table>
+            </EntityList>
         </div>
+        
     </div>
 
 
-
-    <div class="bg-light col-3">
-        <h1>SECOND COL</h1>
+    @* Category List *@
+    <div class="d-flex p-5 col-3">
+        
+        <EntityList CreateHandler="@OpenCategoryForm">
+            
+            
+            @foreach (var category in _categories.GetAll())
+            {
+                <div class="border-bottom-2 d-flex justify-content-between py-1 px-2">
+                    
+                    <p>@category.Name</p>
+                    
+                    <div class="d-flex">
+                        <p>@category.Products.Count</p>
+                        <td><button class="btn btn-warning text-white" onclick="@(() => OpenCategoryForm(category))"><BiPencilSquare/></button></td>
+                    </div>
+                    
+                </div>
+            }
+            
+            
+        </EntityList>
+        
+        
     </div>
     
     

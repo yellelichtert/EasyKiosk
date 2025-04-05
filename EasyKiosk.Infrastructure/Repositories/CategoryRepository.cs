@@ -8,7 +8,7 @@ namespace EasyKiosk.Infrastructure.Repositories;
 public class CategoryRepository : ICategoryRepository
 {
     private IDbContextFactory<EasyKioskDbContext> _dbFactory;
-
+    
 
     public CategoryRepository(IDbContextFactory<EasyKioskDbContext> contextFactory)
     {
@@ -20,10 +20,9 @@ public class CategoryRepository : ICategoryRepository
     {
         using (var context = _dbFactory.CreateDbContext())
         {
-            return context.Categories.ToArray();
+            return context.Categories.Include(c => c.Products).ToArray();
         }
     }
-
 
 
     public Category GetById(Guid id)
@@ -34,7 +33,6 @@ public class CategoryRepository : ICategoryRepository
         }
     }
     
-
     
     public Task AddAsync(Category entity)
     {
@@ -53,4 +51,5 @@ public class CategoryRepository : ICategoryRepository
     {
         throw new NotImplementedException();
     }
+    
 }

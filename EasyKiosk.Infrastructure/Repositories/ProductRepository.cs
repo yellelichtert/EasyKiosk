@@ -19,7 +19,7 @@ public class ProductRepository : IProductRepository
 
     public Product[] GetAll()
     {
-        if (_entities is not null) //Makes search pore performant
+        if (_entities is not null)
             return _entities.ToArray();
         
         
