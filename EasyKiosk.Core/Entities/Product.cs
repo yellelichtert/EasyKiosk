@@ -7,8 +7,10 @@ public class Product : Entity
     public string Description;
     
     public decimal Price;
+
+    public string? Img;
     
     public Category Category;
     
-    public int CategoryId;
+    public Guid CategoryId;
 }

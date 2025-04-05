@@ -15,8 +15,5 @@ public class ProductValidator : AbstractValidator<Product>
             .GreaterThan(0)
             .NotNull();
 
-        RuleFor(p => p.CategoryId)
-            .GreaterThan(0)
-            .NotNull();
     }
 }

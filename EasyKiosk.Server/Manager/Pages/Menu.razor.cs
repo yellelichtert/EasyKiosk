@@ -34,67 +34,48 @@ public partial class Menu : ComponentBase
         _checkedProducts = new();
     }
 
-    
-    
-    
 
-    private void EditProductHandler(Product product)
+
+    private void OnPopupClose()
     {
-        _selectedProduct = product;
-
-        _formSubmitHandler = UpdateProductInDbAsync;
-        _popup.UpdateTitle("Edit Product");
-        _popup.Show();
-    }
-
-    
-    
-    
-    private void AddProductHandler()
-    {
-        _selectedProduct = new Product();
-
-        _formSubmitHandler = AddProductToDbAsync;
-        _popup.UpdateTitle("New Product");
-        _popup.Show();
-    }
-
-    
-    
-    
-    
-    private async Task UpdateProductInDbAsync()
-    {
-        _formLoading = true;
-        await _products.UpdateAsync(_selectedProduct!); 
-        ResetPopup();
-        
-        //todo: decode image string back to original bytes
-        //todo: upload file to server
-    }
-
-    
-    
-    
-    
-    private async Task AddProductToDbAsync()
-    {
-        _formLoading = true;
-        await _products.AddAsync(_selectedProduct!);
-        ResetPopup();
-    }
-
-
-    
-    
-    
-    private void ResetPopup()
-    {
-        _formLoading = false;
-        _popup.Close();
         _selectedProduct = null;
+        _formImgPath = null;
+        _formLoading = false;
+    }
+    
+
+   
+    
+    private void OpenProductForm(Product? product = null)
+    {
+        _selectedProduct = product ?? new();
+        
+        _popup.UpdateTitle( product == null ? "Add Product" : "Edit Product");
+        _popup.Show();
     }
 
+
+    private async Task HandleProductSubmit()
+    {
+        _formLoading = true;
+        
+        if (_formImgPath is not null)
+        {
+            _selectedProduct!.Img = _formImgPath;
+        }
+        
+        if (_selectedProduct.Id == Guid.Empty)
+        {
+            await _products.AddAsync(_selectedProduct);
+        }
+        else
+        {
+            await _products.UpdateAsync(_selectedProduct);
+        }
+        
+        _popup.Close();
+    }
+    
     
     
     
@@ -136,8 +117,6 @@ public partial class Menu : ComponentBase
     {
         var file = args.File;
         
-        //Iets anders als memoryStream?
-        //memorystream maak foto heeeeel groot
         
         using (var memory = new MemoryStream())
         {
@@ -149,4 +128,5 @@ public partial class Menu : ComponentBase
             _formImgPath = $"data:image/{file.Name.Split(".")[1]};base64,{base64}";
         }
     }
+    
 }

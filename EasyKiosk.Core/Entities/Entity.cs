@@ -6,7 +6,7 @@ public class Entity
 {
     [Required]
     [Key]
-    public int Id;
+    public Guid Id;
     
     
     [Required]

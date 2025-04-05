@@ -30,7 +30,7 @@ public class ProductRepository : IProductRepository
     }
         
     
-    public  Product GetById(int id)
+    public  Product GetById(Guid id)
     {
         throw new NotImplementedException();
     }

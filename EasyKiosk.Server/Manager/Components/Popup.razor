@@ -30,6 +30,8 @@
     [Parameter] public RenderFragment ChildContent {get; set; }
     private string VisibilityClass => _isVisible ? "d-flex" : "d-none";
 
+    [Parameter] public Action? OnCloseHandler { get; set; }
+
     private string _title;
     private bool _isVisible;
 
@@ -45,6 +47,7 @@
     {
         _isVisible = false;
         InvokeAsync(StateHasChanged);
+        OnCloseHandler?.Invoke();
     }
 
     

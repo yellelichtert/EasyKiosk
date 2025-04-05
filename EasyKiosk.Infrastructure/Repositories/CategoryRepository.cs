@@ -26,7 +26,7 @@ public class CategoryRepository : ICategoryRepository
 
 
 
-    public Category GetById(int id)
+    public Category GetById(Guid id)
     {
         using (var context = _dbFactory.CreateDbContext())
         {

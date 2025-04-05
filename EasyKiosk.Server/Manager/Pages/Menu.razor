@@ -6,12 +6,16 @@
 @using EasyKiosk.Server.Manager.Components
 @using Blazored.FluentValidation
 
+@code {
 
-<Popup @ref="_popup">
+}
+
+
+<Popup @ref="_popup" OnCloseHandler="@OnPopupClose">
     
     @if (_selectedProduct is not null)
     {
-        <EditForm Model=@_selectedProduct class="p-1" OnValidSubmit="@(async () => await _formSubmitHandler())">
+        <EditForm Model=@_selectedProduct class="p-1" OnValidSubmit="HandleProductSubmit">
             <FluentValidationValidator/>
             
             <div class="d-flex">
@@ -30,7 +34,7 @@
                     <div class="d-flex flex-column mb-1">
                         <label for="">Category</label>
                         <InputSelect @bind-Value="_selectedProduct.CategoryId">
-                            @if (_selectedProduct.CategoryId == 0)
+                            @if (_selectedProduct.CategoryId == Guid.Empty)
                             {
                                 <option selected value="0">Select A Category....</option>
                             }
@@ -62,18 +66,22 @@
                         {
                             <p>Uploading....</p>
                         }
-                        else if (_formImgPath == null)
+                        else if (_formImgPath == null && string.IsNullOrEmpty(_selectedProduct.Img))
                         {
                             <p>Upload an image....</p>
                         }
-                        else
+                        else if (_formImgPath is not null)
                         {
                             <img src="@_formImgPath" class="img-thumbnail mh-100"   alt="Uploaded image"/> 
+                        }
+                        else
+                        {
+                            <img src="@_selectedProduct.Img" class="img-thumbnail mh-100"   alt="Uploaded image"/> 
                         }
                   
                     
                     
-                    <InputFile OnChange="LoadImage" accept=".jpg, .jpeg, .png, .svg"/>
+                        <InputFile OnChange="LoadImage" accept=".jpg, .jpeg, .png, .svg"/>
                 </div>
                 
             </div>
@@ -113,7 +121,7 @@
 
 
                     <div class="align-content-stretch">
-                        <button class="btn btn-success" @onclick="AddProductHandler"><BiPlusLg/></button>
+                        <button class="btn btn-success" onclick="@(() => OpenProductForm())"><BiPlusLg/></button>
                         <div class="btn btn-danger text-white" @onclick="(async () => await DeleteCheckedProducts())"><BiTrashFill/></div>
                     </div>
 
@@ -142,7 +150,7 @@
                                     <td>@product.Description</td>
                                     <td>@product.Price</td>
                                     <td>@_categories.GetById(product.CategoryId).Name</td>
-                                    <td><button class="btn btn-warning text-white" onclick="@(() => EditProductHandler(product))"><BiPencilSquare/></button></td>
+                                    <td><button class="btn btn-warning text-white" onclick="@(() => OpenProductForm(product))"><BiPencilSquare/></button></td>
                                 </tr>
                             }
                         </tbody>
