@@ -1,4 +1,5 @@
 using EasyKiosk.Core.Repositories;
+using EasyKiosk.Core.Services;
 using EasyKiosk.Infrastructure.Context;
 using EasyKiosk.Infrastructure.Repositories;
 using EasyKiosk.Server.Manager;
@@ -12,15 +13,24 @@ builder.Services.AddRazorComponents()
 
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContextFactory<EasyKioskDbContext>(
+
+builder.Services.AddDbContext<EasyKioskDbContext>(
     options => options.UseMySql(
         connectionString,
         ServerVersion.AutoDetect(connectionString)
         ));
 
+// builder.Services.AddDbContextFactory<EasyKioskDbContext>(
+//     options => options.UseMySql(
+//         connectionString,
+//         ServerVersion.AutoDetect(connectionString)
+//         ));
+
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+builder.Services.AddTransient<IMenuService, MenuService>();
 
 
 var app = builder.Build();

@@ -13,7 +13,6 @@
 
 
 <Popup @ref="_popup" OnCloseHandler="@OnPopupClose">
-    
     @if (_selectedProduct is not null || _selectedCategory is not null)
     {
             <div class="d-flex @(_selectedCategory != null? "flex-column-reverse" : null)">
@@ -21,7 +20,6 @@
                 @if (_selectedProduct is not null)
                 {
                     <EditForm Model=@_selectedProduct class="p-1 col-6" OnValidSubmit="HandleProductSubmit">
-                    <FluentValidationValidator/>
                     
                         <div class="d-flex flex-column  my-1">
                             <label for="Name">Name</label>
@@ -42,9 +40,9 @@
                                 }
                                 else
                                 {
-                                    <option selected value="@_selectedProduct.CategoryId">@_categories.GetById(_selectedProduct.CategoryId).Name</option>
+                                    <option selected value="@_selectedProduct.CategoryId">@_menuService.GetCategoryName(_selectedProduct.CategoryId)</option>
                                 }
-                                @foreach (var category in _categories.GetAll())
+                                @foreach (var category in _menuService.GetCategories())
                                 {
                                     if (category.Id != _selectedProduct.CategoryId)
                                     {
@@ -66,8 +64,7 @@
                 else if (_selectedCategory is not null)
                 { 
                     <EditForm Model=@_selectedCategory class="p-1 col-6" OnValidSubmit="HandleCategorySubmit">
-                    <FluentValidationValidator/>
-                    
+                        
                         <div class="d-flex flex-column  my-1">
                             <label for="Name">Name</label>
                             <InputText id="Name" @bind-Value="_selectedCategory.Name"/>
@@ -83,7 +80,7 @@
                 <div class="container-fluid d-flex flex-column justify-content-between mx-1">
                     
                    
-                        @if (_imageLoading)
+                        @if (_imgLoading)
                         {
                             <p>Uploading....</p>
                         }
@@ -118,8 +115,8 @@
         @* Statcards *@
         <div class="h-25 p-5 d-flex justify-content-evenly" style="z-index: inherit">
             
-            <StatCard Value="@_products.GetAll().Length">Total Products: </StatCard>
-            <StatCard Value="@_categories.GetAll().Length">Total Categories: </StatCard>
+            <StatCard Value="@_menuService.GetProducts().Count()">Total Products: </StatCard>
+            <StatCard Value="@_menuService.GetCategories().Count()">Total Categories: </StatCard>
             <StatCard Value="@("xx")">XXXXXXXX: </StatCard>
             <StatCard Value="@("xx")">XXXXXXXX: </StatCard>
             
@@ -140,14 +137,14 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach (Product product in _products.GetAll())
+                    @foreach (Product product in _menuService.GetProducts())
                     {
                         <tr>
                             <td><input @key="product.Id" type="checkbox" onchange=@(() => ProductCheckboxHandler(product))></td>
                             <td>@product.Name</td>
                             <td>@product.Description</td>
                             <td>@product.Price</td>
-                            <td>@_categories.GetById(product.CategoryId).Name</td>
+                            <td>@_menuService.GetCategoryName(product.CategoryId)</td>
                             <td><button class="btn btn-warning text-white" onclick="@(() => OpenProductForm(product))"><BiPencilSquare/></button></td>
                         </tr>
                     }
@@ -165,14 +162,14 @@
         <EntityList CreateHandler="@OpenCategoryForm">
             
             
-            @foreach (var category in _categories.GetAll())
+            @foreach (var category in _menuService.GetCategories())
             {
                 <div class="border-bottom-2 d-flex justify-content-between py-1 px-2">
                     
                     <p>@category.Name</p>
                     
                     <div class="d-flex">
-                        <p>@category.Products.Count</p>
+                        <p>@_menuService.GetProductsInCategory(category.Id).Count()</p>
                         <td><button class="btn btn-warning text-white" onclick="@(() => OpenCategoryForm(category))"><BiPencilSquare/></button></td>
                     </div>
                     
@@ -184,8 +181,10 @@
         
         
     </div>
-    
-    
+
+
+
+<Notifier @ref="_notifier"/>
     
     
 

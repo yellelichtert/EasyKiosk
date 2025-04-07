@@ -1,0 +1,73 @@
+@using Blazor.Bootstrap.Icons.Components
+
+@if (_notifications.Any())
+{
+    <div class="position-absolute m-3 d-flex flex-column justify-content-end" style="right: 0; bottom: 0; width: 15%">
+
+
+        @foreach (var notification in _notifications)
+        {
+            
+            <div class="card d-flex flex-row p-1 shadow text-center my-1" style="min-width: 100%">
+            
+                <button onclick="@(() => Remove(notification))" class="position-absolute btn btn-danger" style="right: 0; top: 0"><BiXLg/></button>
+            
+            
+                @if (notification.type == Type.Warning)
+                {
+                    <BiExclamationTriangleFill Class="text-warning"/>
+                }
+                else if (notification.type == Type.Succes)
+                {
+                    <BiCheckCircleFill Class="text-success"/>
+                }
+                else
+                {
+                    <BiInfoCircleFill class="text-primary"/>
+                }
+            
+            
+                <p>@notification.message</p>
+            
+            
+            </div>
+        }
+    
+    </div>
+}
+
+
+
+
+
+@code {
+
+        public enum Type { Succes, Info, Warning }
+    
+        List<(Type type, string message)> _notifications = new();   
+
+
+        public void Add(Type type, string message)
+    {
+        if (string.IsNullOrEmpty(message))
+        {
+            throw new NullReferenceException("Message cannot be empty!");
+        }
+        
+        _notifications.Add((type, message));
+        
+        InvokeAsync(StateHasChanged);
+    }
+
+        private void Remove((Type, string) notification)
+        {
+            _notifications.Remove(notification);
+            InvokeAsync(StateHasChanged);
+        }
+        
+        public void Clear()
+        {
+            _notifications = new();
+            InvokeAsync(StateHasChanged);
+        }
+}

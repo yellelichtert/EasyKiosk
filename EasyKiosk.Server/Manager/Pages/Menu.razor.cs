@@ -2,7 +2,9 @@ using System.Diagnostics;
 using System.IO.Pipelines;
 using EasyKiosk.Core.Entities;
 using EasyKiosk.Core.Repositories;
+using EasyKiosk.Core.Services;
 using EasyKiosk.Server.Manager.Components;
+using ErrorOr;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 
@@ -11,38 +13,29 @@ namespace EasyKiosk.Server.Manager.Pages;
 public partial class Menu : ComponentBase
 {
 
-    private IProductRepository _products;
-    private ICategoryRepository _categories;
-
-    private List<Product> _checkedProducts;
+    private readonly IMenuService _menuService;
+    
+    
     private Product? _selectedProduct;
-
     private Category? _selectedCategory;
+    private List<Product> _checkedProducts;
     
     private Popup _popup;
-
-    private Func<Task> _formSubmitHandler;
+    private Notifier _notifier;
+    
     private bool _formLoading;
-
+    private bool _imgLoading;
     private string? _formImgPath;
-    private long _maxfileSize = 1024 * 400;
-    private bool _imageLoading;
-    
-    
-    public Menu(IProductRepository products, ICategoryRepository categories)
-    {
-        _products = products;
-        _categories = categories;
 
+    
+    public Menu(IMenuService menuService)
+    {
+        _menuService = menuService;
+        
         _checkedProducts = new();
     }
 
-
     
-    
-    //
-    //Product Related
-    //
 
     private void OpenProductForm() => OpenProductForm(new Product());
     private void OpenProductForm(Product product)
@@ -54,6 +47,15 @@ public partial class Menu : ComponentBase
     }
     
     
+    private void OpenCategoryForm() => OpenCategoryForm(new());
+    private void OpenCategoryForm(Category category)
+    {
+        _selectedCategory = category;
+        
+        _popup.UpdateTitle( category.Id == Guid.Empty ? "Add Category" : "Edit Category");
+        _popup.Show();
+    }
+    
     
     private async Task HandleProductSubmit()
     {
@@ -63,38 +65,74 @@ public partial class Menu : ComponentBase
         {
             _selectedProduct!.Img = _formImgPath;
         }
-        
-        if (_selectedProduct.Id == Guid.Empty)
+
+        ErrorOr<Product> result;
+        if (_selectedProduct!.Id == Guid.Empty)
         {
-            await _products.AddAsync(_selectedProduct);
+            result = await _menuService.AddProductAsync(_selectedProduct);
         }
         else
         {
-            await _products.UpdateAsync(_selectedProduct);
+            result = await _menuService.UpdateProductAsync(_selectedProduct);
         }
-        
-        _popup.Close();
+
+
+        if (result.Errors.Any())
+        {
+            AddErrorNotifications(result.Errors);
+        }
+        else
+        {
+            _popup.Close();
+        }
     }
     
+    
+    private async Task HandleCategorySubmit()
+    {
+        _formLoading = true;
+        
+        if (_formImgPath is not null)
+        {
+            _selectedCategory!.Img = _formImgPath;
+        }
+
+        ErrorOr<Category> result;
+        if (_selectedCategory!.Id == Guid.Empty)
+        {
+            result = await _menuService.AddCategoryAsync(_selectedCategory);
+        }
+        else
+        {
+            result = await _menuService.UpdateCategoryAsync(_selectedCategory);
+        }
+
+
+        if (result.IsError)
+        {
+            AddErrorNotifications(result.Errors);
+        }
+        else
+        {
+            _popup.Close();
+        }
+    }
     
     
     private async void DeleteCheckedProducts()
     {
         if (_checkedProducts.Count == 0)
             return;
+
         
-        if (_checkedProducts.Count == 1)
-        {
-            await _products.DeleteAsync(_checkedProducts.First());
-        }
-        else
+        foreach (var product in _checkedProducts)
         { 
-             await _products.DeleteAsync(_checkedProducts);
+            var result = await _menuService.DeleteProductAsync(product);
+            AddErrorNotifications(result.Errors);
         }
 
         _checkedProducts = new List<Product>();
     }
-    
     
     
     private void ProductCheckboxHandler(Product product)
@@ -110,76 +148,42 @@ public partial class Menu : ComponentBase
     }
 
     
-    
-    //
-    //Category Related
-    //
-    private void OpenCategoryForm() => OpenCategoryForm(new());
-    private void OpenCategoryForm(Category category)
-    {
-        _selectedCategory = category;
-        
-        _popup.UpdateTitle( category.Id == Guid.Empty ? "Add Category" : "Edit Category");
-        _popup.Show();
-    }
-
-
-    private async Task HandleCategorySubmit()
-    {
-        //Method should work but is untested
-        //Validator needs to be implemented
-        throw new NotImplementedException();
-        
-        
-        _formLoading = true;
-        
-        if (_formImgPath is not null)
-        {
-            _selectedCategory!.Img = _formImgPath;
-        }
-        
-        if (_selectedCategory.Id == Guid.Empty)
-        {
-            await _categories.AddAsync(_selectedCategory);
-        }
-        else
-        {
-            await _categories.UpdateAsync(_selectedCategory);
-        }
-        
-        _popup.Close();
-    }
-    
-    
-    
-    
-    //
-    //Common Methods
-    //
-    
     private void OnPopupClose()
     {
         _selectedProduct = null;
         _selectedCategory = null;
         _formImgPath = null;
         _formLoading = false;
+        
+        _notifier.Clear();
     }
-    
+
+
+    private void AddErrorNotifications(List<Error> errors)
+    {
+        foreach (var error in errors)
+        {
+            _notifier.Add(Notifier.Type.Warning, error.Description);
+        }
+    }
     
     
     private async Task LoadImage(InputFileChangeEventArgs args)
     {
-        var file = args.File;
+        _imgLoading = true;
         
+        var file = args.File;
         
         using (var memory = new MemoryStream())
         {
-            var read = file.OpenReadStream(_maxfileSize);
+            var read = file.OpenReadStream(1024 * 400);
             
             await read.CopyToAsync(memory);
             
             var base64 = Convert.ToBase64String(memory.ToArray());
             _formImgPath = $"data:image/{file.Name.Split(".")[1]};base64,{base64}";
         }
+
+        _imgLoading = false;
     }
 }
