@@ -88,12 +88,11 @@ public class MenuService : IMenuService
 
     public IEnumerable<Category> GetCategories()
         => _categories.GetAll();
-
-    public IEnumerable<Product> GetProductsInCategory(Guid id)
-        => _products.GetAll().Where(p => p.CategoryId == id);
+    
     
     public string GetCategoryName(Guid id)
         => _categories.GetById(id)!.Name;
+    
     
     public async Task<ErrorOr<Category>> AddCategoryAsync(Category category)
     {

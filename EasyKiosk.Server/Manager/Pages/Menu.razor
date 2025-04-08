@@ -15,7 +15,7 @@
 <Popup @ref="_popup" OnCloseHandler="@OnPopupClose">
     @if (_selectedProduct is not null || _selectedCategory is not null)
     {
-            <div class="d-flex @(_selectedCategory != null? "flex-column-reverse" : null)">
+            <div class="d-flex flex-row">
                 
                 @if (_selectedProduct is not null)
                 {
@@ -63,21 +63,24 @@
                 }
                 else if (_selectedCategory is not null)
                 { 
-                    <EditForm Model=@_selectedCategory class="p-1 col-6" OnValidSubmit="HandleCategorySubmit">
+                    <EditForm Model=@_selectedCategory class="d-flex flex-grow-1 flex-column" OnValidSubmit="HandleCategorySubmit">
                         
-                        <div class="d-flex flex-column  my-1">
+                            
+                        <div class="d-flex my-1">
                             <label for="Name">Name</label>
                             <InputText id="Name" @bind-Value="_selectedCategory.Name"/>
-                        </div>
-                        
-                        
+                            </div>
+
+                            <EditableList ItemSource="@_selectedCategory.Products" AddSource="@GetProductsExcludeCategory(_selectedCategory)"/>
+                  
+                            
                         <input type="submit" class="btn btn-primary">@(_formLoading ? "Loading" : "Create")
                 </EditForm>
                 }
                 
                 
                 @* Image selection *@
-                <div class="container-fluid d-flex flex-column justify-content-between mx-1">
+                <div class="container-fluid d-flex flex-column justify-content-between mx-1 h-25">
                     
                    
                         @if (_imgLoading)
@@ -169,7 +172,7 @@
                     <p>@category.Name</p>
                     
                     <div class="d-flex">
-                        <p>@_menuService.GetProductsInCategory(category.Id).Count()</p>
+                        <p>@category.Products.Count</p>
                         <td><button class="btn btn-warning text-white" onclick="@(() => OpenCategoryForm(category))"><BiPencilSquare/></button></td>
                     </div>
                     

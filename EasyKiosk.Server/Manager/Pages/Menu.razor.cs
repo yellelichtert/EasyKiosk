@@ -55,7 +55,9 @@ public partial class Menu : ComponentBase
         _popup.UpdateTitle( category.Id == Guid.Empty ? "Add Category" : "Edit Category");
         _popup.Show();
     }
-    
+
+    private List<Product> GetProductsExcludeCategory(Category category)
+        => _menuService.GetProducts().Where(p => p.Category != category).ToList();
     
     private async Task HandleProductSubmit()
     {
@@ -77,7 +79,7 @@ public partial class Menu : ComponentBase
         }
 
 
-        if (result.Errors.Any())
+        if (result.IsError)
         {
             AddErrorNotifications(result.Errors);
         }
@@ -119,19 +121,25 @@ public partial class Menu : ComponentBase
     }
     
     
-    private async void DeleteCheckedProducts()
+    
+    private void DeleteCheckedProducts()
     {
         if (_checkedProducts.Count == 0)
             return;
 
-        
-        foreach (var product in _checkedProducts)
-        { 
-            var result = await _menuService.DeleteProductAsync(product);
-            AddErrorNotifications(result.Errors);
-        }
+        Task.Run(async () =>
+        {
+            foreach (var product in _checkedProducts)
+            {
+                var result = await _menuService.DeleteProductAsync(product);
 
-        _checkedProducts = new List<Product>();
+                if (result.IsError)
+                    AddErrorNotifications(result.Errors);
+            }
+
+            await InvokeAsync(StateHasChanged);
+            _checkedProducts = new List<Product>();
+        });
     }
     
     

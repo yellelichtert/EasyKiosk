@@ -7,40 +7,67 @@ namespace EasyKiosk.Infrastructure.Repositories;
 
 public class CategoryRepository : ICategoryRepository
 {
-    private EasyKioskDbContext _context;
     private IDbContextFactory<EasyKioskDbContext> _dbFactory;
     
 
-    public CategoryRepository(EasyKioskDbContext context)
+    public CategoryRepository(IDbContextFactory<EasyKioskDbContext> dbFactory)
     {
-        _context = context;
+        _dbFactory = dbFactory;
     }
 
 
     public Category[] GetAll()
-        => _context.Categories.ToArray();
+    {
+        using (var db = _dbFactory.CreateDbContext())
+        {
+            return db.Categories.Include(c => c.Products).ToArray();
+        }
+    }
+        
     
 
 
     public Category? GetById(Guid id)
-        => _context.Categories.FirstOrDefault(c => c.Id == id);
-    
-    
-    public Task AddAsync(Category entity)
     {
-        throw new NotImplementedException();
+        using (var db = _dbFactory.CreateDbContext())
+        {
+            return db.Categories.FirstOrDefault(c => c.Id == id);
+        }
     }
 
     
-    public Task UpdateAsync(Category entity)
+    
+
+    public async Task AddAsync(Category entity)
     {
-        throw new NotImplementedException();
+        using (var db = await _dbFactory.CreateDbContextAsync())
+        {
+            await db.Categories.AddAsync(entity);
+            await db.SaveChangesAsync();
+        }
     }
 
+
+
+    public async Task UpdateAsync(Category entity)
+    { 
+        using (var db = await _dbFactory.CreateDbContextAsync())
+        {
+            db.Categories.Update(entity);
+            await db.SaveChangesAsync();
+        }
+        
+    }
+        
+
     
-    public Task DeleteAsync(Category entity)
+    public async Task DeleteAsync(Category entity)
     {
-        throw new NotImplementedException();
+        using (var db = await _dbFactory.CreateDbContextAsync())
+        {
+            db.Categories.Remove(entity);
+            await db.SaveChangesAsync();
+        }
     }
     
 }

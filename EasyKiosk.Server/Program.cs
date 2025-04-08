@@ -14,17 +14,17 @@ builder.Services.AddRazorComponents()
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-builder.Services.AddDbContext<EasyKioskDbContext>(
-    options => options.UseMySql(
-        connectionString,
-        ServerVersion.AutoDetect(connectionString)
-        ));
-
-// builder.Services.AddDbContextFactory<EasyKioskDbContext>(
+// builder.Services.AddDbContext<EasyKioskDbContext>(
 //     options => options.UseMySql(
 //         connectionString,
 //         ServerVersion.AutoDetect(connectionString)
 //         ));
+
+builder.Services.AddDbContextFactory<EasyKioskDbContext>(
+    options => options.UseMySql(
+        connectionString,
+        ServerVersion.AutoDetect(connectionString)
+        ));
 
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();

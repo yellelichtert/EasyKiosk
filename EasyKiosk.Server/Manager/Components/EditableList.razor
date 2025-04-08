@@ -1,0 +1,74 @@
+@using System.Reflection.Metadata
+@using Blazor.Bootstrap.Icons.Components
+@using EasyKiosk.Core.Entities
+
+@typeparam T
+
+<div class="d-flex flex-grow-1 flex-column bg-dark" style="min-height: 200px">
+    
+    
+    <div class="d-flex flex-grow-1 flex-column bg-light overflow-y-scroll">
+        
+        @foreach (var item in _isAdding ? AddSource : ItemSource)
+        {
+            <div class="w-100 @(SelectedItem != null && SelectedItem.Equals(item) ? "border border-info" : "border-bottom") " @onclick="(() => HandleSelection(item))">
+                <p>@item!.ToString()</p>
+            </div>
+        }
+        
+    </div>
+    
+    <div class="d-flex justify-content-between">
+        <button type="button" @onclick="HandleAdd" class="btn btn-success"><BiPlusLg/></button>
+        <button type="button" @onclick="HandleDelete" class="btn btn-danger"><BiTrashFill/></button>
+    </div>
+    
+</div>
+
+
+
+@code {
+    
+    [Parameter] public required List<T> ItemSource { get; set; }
+    [Parameter] public required List<T> AddSource { get; set; }
+    [Parameter] public T? SelectedItem { get; set; }
+    
+    private bool _isAdding;
+
+    private void HandleDelete()
+    {
+        if (SelectedItem == null)
+            return;
+        
+        ItemSource.Remove(SelectedItem);
+        SelectedItem = default;
+    }
+    
+    
+    private void HandleAdd(){
+        
+        if (!_isAdding)
+        {
+            _isAdding = true;
+            SelectedItem = default;
+            return;
+        }
+
+        
+        if (SelectedItem != null && !ItemSource.Contains(SelectedItem))
+        {
+            ItemSource.Add(SelectedItem);
+        }
+        
+        _isAdding = false;
+        SelectedItem = default;
+    }
+
+
+    private void HandleSelection(T? item)
+    {
+        Console.WriteLine("Handleiing selection");
+        SelectedItem = item;
+    }
+    
+}

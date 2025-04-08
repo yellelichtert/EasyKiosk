@@ -8,30 +8,43 @@ namespace EasyKiosk.Infrastructure.Repositories;
 
 public class ProductRepository : IProductRepository
 {
-    private EasyKioskDbContext _context;
-    // private IDbContextFactory<EasyKioskDbContext> _dbFactory;
-    // private DbSet<Product>? _entities;
+    private IDbContextFactory<EasyKioskDbContext> _dbFactory;
 
-    public ProductRepository(EasyKioskDbContext context)
+
+    public ProductRepository(IDbContextFactory<EasyKioskDbContext> dbFactory)
     {
-        _context = context;
+        _dbFactory = dbFactory;
     }
 
 
     public Product[] GetAll()
-        => _context.Products.ToArray();
+    {
+        using (var db  = _dbFactory.CreateDbContext())
+        {
+            return db.Products.ToArray();
+        }
+    }
+    
 
 
     public Product? GetById(Guid id)
-        => _context.Products.FirstOrDefault(p => p.Id == id);
+    {
+        using (var db  = _dbFactory.CreateDbContext())
+        {
+            return db.Products.FirstOrDefault(p => p.Id == id);
+        }
+    }
+ 
 
-    
     
     
     public async Task AddAsync(Product entity)
     {
-        await _context.Products.AddAsync(entity);
-        await _context.SaveChangesAsync();
+        using (var db  = await _dbFactory.CreateDbContextAsync())
+        {
+            await db.Products.AddAsync(entity);
+            await db.SaveChangesAsync();
+        }
     }
         
     
@@ -39,8 +52,12 @@ public class ProductRepository : IProductRepository
 
     public async Task UpdateAsync(Product entity)
     {
-        _context.Products.Update(entity);
-        await _context.SaveChangesAsync();
+        using (var db  = await _dbFactory.CreateDbContextAsync())
+        {
+            db.Products.Update(entity);
+            await db.SaveChangesAsync();
+        }
+       
     }
 
     
@@ -49,7 +66,10 @@ public class ProductRepository : IProductRepository
     
     public async Task DeleteAsync(Product entity)
     {
-        _context.Products.Remove(entity);
-        await _context.SaveChangesAsync();
+        using (var db = await _dbFactory.CreateDbContextAsync())
+        {
+            db.Products.Remove(entity);
+            await db.SaveChangesAsync();
+        }
     }
 }

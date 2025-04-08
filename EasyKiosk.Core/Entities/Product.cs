@@ -13,4 +13,10 @@ public class Product : Entity
     public Category Category;
     
     public Guid CategoryId;
+
+
+    public override string ToString()
+    {
+        return Name;
+    }
 }
