@@ -98,7 +98,11 @@ public class MenuService : IMenuService
     {
         if (!ValidateCategory(category, out var errors))
             return errors;
-        
+
+        if (category.Id == Guid.Empty)
+        {
+            category.Id = Guid.NewGuid();
+        }
 
         await _categories.AddAsync(category);
         return category;
@@ -117,14 +121,13 @@ public class MenuService : IMenuService
     
     public async Task<ErrorOr<bool>> DeleteCategoryAsync(Category category)
     {
-        if (_categories.GetById(category.Id) is null)
-            return Error.NotFound("Category not found!");
-
-        if (category.Products.Any())
-            return Error.Conflict("Category cannot contain any products!");
+        var dbResult = _categories.GetById(category.Id);
+        
+        if (dbResult is null)
+            return Error.NotFound(description: "Category not found!");
         
         
-        await _categories.DeleteAsync(category);
+        await _categories.DeleteAsync(dbResult);
         return true;
     }
 
@@ -138,11 +141,7 @@ public class MenuService : IMenuService
         {
             errors.Add(Error.Conflict(description: "Name must be unique!"));
         }
-
-        if (category.Products is null || category.Products.Count == 0)
-        {
-            errors.Add(Error.NotFound(description: "Products cannot be empty!"));
-        }
+        
 
         return !errors.Any();
     }

@@ -59,6 +59,8 @@ public partial class Menu : ComponentBase
     private List<Product> GetProductsExcludeCategory(Category category)
         => _menuService.GetProducts().Where(p => p.Category != category).ToList();
     
+    
+    
     private async Task HandleProductSubmit()
     {
         _formLoading = true;
@@ -119,8 +121,13 @@ public partial class Menu : ComponentBase
             _popup.Close();
         }
     }
-    
-    
+
+
+    private void HandleSelectCategory(Category category)
+    {
+        _selectedCategory = _selectedCategory?.Id == category.Id ? null : category;
+        InvokeAsync(StateHasChanged);
+    }
     
     private void DeleteCheckedProducts()
     {
@@ -141,7 +148,23 @@ public partial class Menu : ComponentBase
             _checkedProducts = new List<Product>();
         });
     }
-    
+
+
+    private void DeleteCategory()
+    {
+        if (_selectedCategory == null)
+            return;
+
+        Task.Run(async () =>
+        {
+            var result = await _menuService.DeleteCategoryAsync(_selectedCategory);
+
+            if (result.IsError)
+                AddErrorNotifications(result.Errors);
+
+            InvokeAsync(StateHasChanged);
+        });
+    }
     
     private void ProductCheckboxHandler(Product product)
     {

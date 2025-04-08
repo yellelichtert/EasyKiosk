@@ -2,7 +2,7 @@
 
 @using Blazor.Bootstrap.Icons.Components
 
-<div class="position-absolute border-5 h-100 w-100 align-items-center justify-content-center @VisibilityClass" style="background-color: rgba(0,0,0,0.5)">
+<div class="position-absolute border-5 h-100 w-100 align-items-center justify-content-center @VisibilityClass" style="background-color: rgba(0,0,0,0.5); z-index: 998">
     
     
     <div class="card" style="min-width: 25%">
@@ -34,7 +34,7 @@
 
     private string _title;
     private bool _isVisible;
-
+    public bool IsVisible => _isVisible;
     
     public void Show()
     {

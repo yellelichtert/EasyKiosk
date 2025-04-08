@@ -162,21 +162,24 @@
     @* Category List *@
     <div class="d-flex p-5 col-3">
         
-        <EntityList CreateHandler="@OpenCategoryForm">
+        <EntityList CreateHandler="@OpenCategoryForm" DeleteHandler="@DeleteCategory">
             
             
             @foreach (var category in _menuService.GetCategories())
             {
-                <div class="border-bottom-2 d-flex justify-content-between py-1 px-2">
+                <div  class="d-flex justify-content-between py-1 px-2 align-items-center @(!_popup.IsVisible && _selectedCategory?.Id == category.Id ? "border border-info" : "border-bottom")">
                     
-                    <p>@category.Name</p>
-                    
+                    <p onclick="@(() => HandleSelectCategory(category))" class="w-100 h-100">@category.Name</p>
+
                     <div class="d-flex">
                         <p>@category.Products.Count</p>
-                        <td><button class="btn btn-warning text-white" onclick="@(() => OpenCategoryForm(category))"><BiPencilSquare/></button></td>
+                        <td><button class="btn btn-warning text-white" onclick="@(() => OpenCategoryForm(category))" style="z-index: 30"><BiPencilSquare/></button></td>
                     </div>
                     
                 </div>
+                
+                
+                    
             }
             
             
