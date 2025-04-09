@@ -1,10 +1,13 @@
 @page "/Menu"
 @rendermode InteractiveServer
 
+@attribute [Authorize]
+
 @using Blazor.Bootstrap.Icons.Components
 @using EasyKiosk.Server.Manager.Components
 @using Blazored.FluentValidation
 @using EasyKiosk.Core.Entities
+@using Microsoft.AspNetCore.Authorization
 
 
 @code {

@@ -1,8 +1,11 @@
 using EasyKiosk.Core.Repositories;
 using EasyKiosk.Core.Services;
 using EasyKiosk.Infrastructure.Context;
+using EasyKiosk.Infrastructure.Identity;
 using EasyKiosk.Infrastructure.Repositories;
 using EasyKiosk.Server.Manager;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,23 +16,36 @@ builder.Services.AddRazorComponents()
 
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-// builder.Services.AddDbContext<EasyKioskDbContext>(
-//     options => options.UseMySql(
-//         connectionString,
-//         ServerVersion.AutoDetect(connectionString)
-//         ));
-
 builder.Services.AddDbContextFactory<EasyKioskDbContext>(
     options => options.UseMySql(
         connectionString,
         ServerVersion.AutoDetect(connectionString)
         ));
 
+builder.Services.AddCascadingAuthenticationState();
+builder.Services.AddScoped<IdentityUserAccesor>();
+builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    })
+    .AddIdentityCookies();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/login";
+});
+
+builder.Services.AddIdentityCore<IdentityUser>()
+    .AddEntityFrameworkStores<EasyKioskDbContext>()
+    .AddSignInManager()
+    .AddDefaultTokenProviders();
+
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-
 builder.Services.AddTransient<IMenuService, MenuService>();
 
 
@@ -44,6 +60,7 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 
 
 app.UseAntiforgery();

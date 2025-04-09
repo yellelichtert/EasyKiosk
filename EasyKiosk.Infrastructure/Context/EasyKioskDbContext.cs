@@ -1,11 +1,17 @@
 using EasyKiosk.Core.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace EasyKiosk.Infrastructure.Context;
 
-public class EasyKioskDbContext : DbContext
+public class EasyKioskDbContext : IdentityDbContext<IdentityUser>
 {
-    public EasyKioskDbContext(DbContextOptions<EasyKioskDbContext> options) : base(options) {}
+    public EasyKioskDbContext(DbContextOptions<EasyKioskDbContext> options) : base(options)
+    {
+        
+    }
+
 
 
     public virtual DbSet<Category> Categories { get; set; }
@@ -66,6 +72,7 @@ public class EasyKioskDbContext : DbContext
         modelBuilder.Entity<Product>().Property(p => p.CategoryId).HasColumnOrder(4);
         modelBuilder.Entity<Product>().Property(p => p.Img).HasColumnOrder(5);
         
+        modelBuilder.Seed();
         base.OnModelCreating(modelBuilder);
     }
 }

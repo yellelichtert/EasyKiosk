@@ -4,6 +4,7 @@ using EasyKiosk.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EasyKiosk.Infrastructure.Migrations
 {
     [DbContext(typeof(EasyKioskDbContext))]
-    partial class EasyKioskDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250409122137_CreateIdentitySchemaWithDefaultAdmin")]
+    partial class CreateIdentitySchemaWithDefaultAdmin
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
