@@ -5,20 +5,17 @@
 
 @using Blazor.Bootstrap.Icons.Components
 @using EasyKiosk.Server.Manager.Components
-@using Blazored.FluentValidation
 @using EasyKiosk.Core.Entities
 @using Microsoft.AspNetCore.Authorization
 
 
-@code {
 
-}
 
 
 <Popup @ref="_popup" OnCloseHandler="@OnPopupClose">
     @if (_selectedProduct is not null || _selectedCategory is not null)
     {
-            <div class="d-flex flex-row">
+            <div class="d-flex flex-row h-25 w-50">
                 
                 @if (_selectedProduct is not null)
                 {
@@ -83,7 +80,7 @@
                 
                 
                 @* Image selection *@
-                <div class="container-fluid d-flex flex-column justify-content-between mx-1 h-25">
+                <div class="d-flex flex-column justify-content-between mx-1 h-25">
                     
                    
                         @if (_imgLoading)
@@ -96,7 +93,9 @@
                         }
                         else if (_formImgPath is not null)
                         {
-                            <img src="@_formImgPath" class="img-thumbnail@(_selectedCategory != null? "mh-100" : "mw-100")"   alt="Uploaded image"/> 
+                            <div class="h-100">
+                                <img src="@_formImgPath" class="object-fit-contain"   alt="Uploaded image"/>
+                            </div>
                         }
                         else
                         {
@@ -129,7 +128,7 @@
         </div>
 
         
-        <div class="flex-grow-1 p-5">
+        <div class="p-5">
             <EntityList CreateHandler="@OpenProductForm" DeleteHandler="@DeleteCheckedProducts">
                 <table class="table">
                     <thead>

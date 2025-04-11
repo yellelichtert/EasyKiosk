@@ -4,14 +4,9 @@ namespace EasyKiosk.Core.Entities;
 
 public class Entity
 {
-    [Required]
-    [Key]
-    public Guid Id;
-    
-    
-    [Required]
-    public DateTime CreatedAt;
+    public Guid Id { get; set; }
 
-    [Required]
-    public DateTime UpdatedAt;
+
+    public DateTime CreatedAt;
+     public DateTime UpdatedAt;
 }

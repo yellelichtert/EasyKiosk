@@ -1,0 +1,127 @@
+@page "/"
+
+
+
+@if (IsLoading)
+{
+    <h1 class="align-self-center text-center flex-grow-1">Loading....</h1>
+}
+else if (Order is null)
+{
+    <div class="h-100 w-100 d-flex align-items-center justify-content-center" @onclick="() => {Order = new(); }">
+        Tap to Order....
+    </div>
+}
+else if (Categories is not null)
+{
+    
+    @* Categories *@
+    <section id="Categories" class="row h-25">
+        <div class="container-fluid d-flex overflow-scroll py-5">
+            @foreach (var category in Categories)
+            {
+                <button @onclick="() => { SelectedCategory = category; }" class="btn bg-white col-3 h-100 mx-3 shadow rounded @(category.Img != null ? "d-flex flex-column justify-content-center align-items-center" : "")">
+                    
+                    @if (category.Img is not null)
+                    {
+                        <div class="flex-grow-1 p-4">
+                            <img class="img-fluid" src="@category.Img" alt="Category Icon">
+                        </div>
+                    }
+                    
+                    <h3>@category.Name</h3>
+                </button>
+            }
+        </div>
+    </section>
+
+
+
+    @* Product  *@
+    <section id="Products" class="row flex-grow-1 justify-content-center px-3 overflow-scroll">
+        @foreach (var product in SelectedCategory.Products)
+        {
+            <div class="col-4 h-25 d-flex p-3">
+                <Card class="bg-white rounded shadow-sm flex-grow-1 d-flex flex-column justify-content-between">
+                    
+                    <h3>@product.Name</h3>
+                    
+                    <div class="d-flex justify-content-between">
+                        
+                        <div class="d-flex">
+
+                            @if (Order.Products.Contains(product))
+                            {
+                                <Button Color="ButtonColor.Primary" @onclick="(() => { Order.Products.Remove(product);})">
+                                    <Icon Name="IconName.DashLg"/>
+                                </Button>
+                            
+                                <p>@Order.Products.Count(p => p.Id == product.Id)</p>
+                            }
+                            
+                            <Button Color="ButtonColor.Primary" @onclick="(() => { Order.Products.Add(product);})">
+                                <Icon Name="IconName.PlusLg"/>
+                            </Button>
+                        </div>
+                        
+                        
+                        <p>@product.Price</p>
+                        
+                    </div>
+                    
+                </Card>
+            </div>
+        }
+    </section>
+
+    
+    <button  @onclick="(() => _orderCanvas.ShowAsync())"  class="btn bg-info position-absolute rounded-circle text-white bottom-0 text-white p-4 end-0 mx-5">
+        <BiBasketFill/>
+    </button>
+    
+    
+    <Offcanvas @ref="_orderCanvas" Title="Order" Placement="Placement.Bottom" Class="rounded-3 d-flex flex-column h-75">
+
+        <BodyTemplate>
+            <Card Color="CardColor.Light" Class="h-75">
+
+                <CardHeader>
+                    Products
+                </CardHeader>
+                
+                
+                <CardBody Class="overflow-scroll">
+                    @foreach (var product in Order.Products.Distinct())
+                    {
+                        <div class="d-flex justify-content-between">
+                            
+                            <div class="d-flex">
+                                <p class="h3">@Order.Products.Count(p => p.Id == product.Id) x</p>
+                                <h3>@product.Name</h3>
+                            </div>
+
+                            <div class="d-flex">
+
+                                <Button Color="ButtonColor.Primary" @onclick="(() => { Order.Products.Remove(product); })">
+                                    <Icon Name="IconName.DashLg"/>
+                                </Button>
+
+                                <p class="h3">@Order.Products.Count(p => p.Id == product.Id)</p>
+
+                                <Button Color="ButtonColor.Primary" @onclick="(() => { Order.Products.Add(product); })">
+                                    <Icon Name="IconName.PlusLg"/>
+                                </Button>
+                            </div>
+
+                        </div>
+                    }
+                </CardBody>
+            </Card>
+
+            
+            <Button @ref="_orderButton" @onclick="SendOrderAsync" Color="ButtonColor.Primary">Order</Button>
+            
+        </BodyTemplate>
+    </Offcanvas>
+    
+}

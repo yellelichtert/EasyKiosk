@@ -207,7 +207,7 @@ public partial class Menu : ComponentBase
         
         using (var memory = new MemoryStream())
         {
-            var read = file.OpenReadStream(1024 * 400);
+            var read = file.OpenReadStream(1024 * 20000);
             
             await read.CopyToAsync(memory);
             

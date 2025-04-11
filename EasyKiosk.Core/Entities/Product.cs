@@ -2,17 +2,17 @@ namespace EasyKiosk.Core.Entities;
 
 public class Product : Entity
 {
-    public string Name;
+    public string Name { get; set; }
     
-    public string Description;
+    public string Description { get; set; }
     
-    public decimal Price;
+    public decimal Price { get; set; }
 
-    public string? Img;
-    
+    public string? Img { get; set; }
+
     public Category Category;
     
-    public Guid CategoryId;
+    public Guid CategoryId { get; set; }
 
 
     public override string ToString()

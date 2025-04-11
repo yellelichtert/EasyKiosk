@@ -4,9 +4,9 @@ namespace EasyKiosk.Core.Entities;
 
 public class Category : Entity
 {
-    public string Name;
+    public string Name { get; set; }
 
-    public string? Img;
+    public string? Img { get; set; }
 
-    public List<Product> Products = new();
+    public List<Product> Products { get; set; } = new();
 }
