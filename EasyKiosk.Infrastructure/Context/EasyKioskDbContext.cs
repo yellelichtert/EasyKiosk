@@ -11,15 +11,59 @@ public class EasyKioskDbContext : IdentityDbContext<IdentityUser>
     {
         
     }
-
-
-
+    
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<Product> Products { get; set; }
+    public virtual DbSet<Device> Devices { get; set; }
 
+
+    
+    private void SetTimeStamps()
+    {
+        var changedEntitites = this.ChangeTracker
+            .Entries().Where(e =>
+                e.Entity is Entity && (e.State == EntityState.Modified || e.State == EntityState.Added));
+
+        var timeStamp = DateTime.Now;
+        foreach (var entry in changedEntitites)
+        {
+            if (entry.State == EntityState.Added)
+            {
+                ((Entity)entry.Entity).CreatedAt = timeStamp;
+            }
+
+            ((Entity)entry.Entity).UpdatedAt = timeStamp;
+        }
+        
+    }
+
+    public override int SaveChanges()
+    {
+        SetTimeStamps();
+        return base.SaveChanges();
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        SetTimeStamps();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = new CancellationToken())
+    {
+        SetTimeStamps();
+        return  await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+    {
+        SetTimeStamps();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        
         //Category Entity
         modelBuilder.Entity<Category>()
             .HasKey(c => c.Id);
@@ -41,7 +85,15 @@ public class EasyKioskDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.Entity<Category>().Property(c => c.Id).HasColumnOrder(0);
         modelBuilder.Entity<Category>().Property(c => c.Name).HasColumnOrder(2);
         modelBuilder.Entity<Category>().Property(c => c.Img).HasColumnOrder(3);
-
+        
+        modelBuilder.Entity<Category>()
+            .Property(e => e.CreatedAt)
+            .IsRequired();
+        
+        modelBuilder.Entity<Category>()
+            .Property(e => e.UpdatedAt)
+            .IsRequired();
+        
         
         
 
@@ -71,6 +123,51 @@ public class EasyKioskDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.Entity<Product>().Property(p => p.Price).HasColumnOrder(3);
         modelBuilder.Entity<Product>().Property(p => p.CategoryId).HasColumnOrder(4);
         modelBuilder.Entity<Product>().Property(p => p.Img).HasColumnOrder(5);
+        
+        modelBuilder.Entity<Product>()
+            .Property(e => e.CreatedAt)
+            .IsRequired();
+        
+        modelBuilder.Entity<Product>()
+            .Property(e => e.UpdatedAt)
+            .IsRequired();
+        
+        
+        //Device Entity
+        modelBuilder.Entity<Device>()
+            .HasKey(d => d.Id);
+
+        modelBuilder.Entity<Device>()
+            .Property(d => d.Name)
+            .HasColumnType("varchar(20)")
+            .IsRequired();
+
+        modelBuilder.Entity<Device>()
+            .Property(d => d.DeviceType)
+            .HasColumnType("int")
+            .IsRequired();
+
+        modelBuilder.Entity<Device>()
+            .Property(d => d.Key)
+            .IsRequired();
+
+        modelBuilder.Entity<Device>()
+            .Property(d => d.IsKeyRevoked)
+            .IsRequired();
+
+        modelBuilder.Entity<Device>().Property(d => d.Id).HasColumnOrder(0);
+        modelBuilder.Entity<Device>().Property(d => d.DeviceType).HasColumnOrder(1);
+        modelBuilder.Entity<Device>().Property(d => d.Key).HasColumnOrder(2);
+        modelBuilder.Entity<Device>().Property(d => d.IsKeyRevoked).HasColumnOrder(3);
+        
+        
+        modelBuilder.Entity<Device>()
+            .Property(e => e.CreatedAt)
+            .IsRequired();
+        
+        modelBuilder.Entity<Device>()
+            .Property(e => e.UpdatedAt)
+            .IsRequired();
         
         modelBuilder.Seed();
         base.OnModelCreating(modelBuilder);

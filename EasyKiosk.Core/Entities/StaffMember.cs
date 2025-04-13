@@ -1,6 +1,6 @@
 namespace EasyKiosk.Core.Entities;
 
-public class User : Entity
+public class StaffMember : Entity
 {
     public string Name { get; set; }
     public string Email { get; set; }
