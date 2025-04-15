@@ -1,0 +1,12 @@
+@using EasyKiosk.Server.Service
+
+<NotificationWithLabel NotificationType="@Model.Type" DismissHandler="Model.Dismiss">
+    
+        <p>@Model.Message</p>
+    
+</NotificationWithLabel>
+
+
+@code {
+    [Parameter] public Notification Model { get; set; }
+}

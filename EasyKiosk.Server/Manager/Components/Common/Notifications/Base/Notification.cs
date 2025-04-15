@@ -6,32 +6,21 @@ namespace EasyKiosk.Server.Manager.Components.Common.Notifications.Base;
 public class Notification : DynamicComponent
 {
     public override Type ComponentType { get; } = typeof(NotificationComponent);
-
-    public INotificationManager.Type Type { get;}
-    public string Message { get; }
-
-    public event Action<Notification> OnDismiss;
-
-    protected Notification(bool populateParameters, string message, INotificationManager.Type type = INotificationManager.Type.Info)
+    public INotificationManager.Type Type { get; set; } = INotificationManager.Type.Info;
+    
+    
+    
+    protected string _message;
+    public string Message
     {
-        Type = type;
-        Message = message;
+        get => _message ?? throw new NullReferenceException("Message cannot be null");
+        init => _message = value;
     }
     
-    public Notification(string message, INotificationManager.Type type = INotificationManager.Type.Info)
-    {
-        Type = type;
-        Message = message;
-        
-        ComponentParameters.Add("Model", this);
-    }
+    
 
-
-
+    public event Action<Notification> OnDismiss;
     public virtual void Dismiss()
-    {
-        OnDismiss?.Invoke(this);
-        Console.WriteLine("Base called EVENT");
-    }
-        
+        => OnDismiss?.Invoke(this);
+    
 }
