@@ -1,4 +1,6 @@
-﻿@inherits LayoutComponentBase
+﻿@using EasyKiosk.Server.Manager.Components.Common.Notifications
+@inherits LayoutComponentBase
+
 
 <div class="page overflow-hidden">
     
@@ -17,9 +19,16 @@
             @Body
             
         </div>
+
+        <Notifier/>
         
         
     </main>
+    
+    
+
+    
+    
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>

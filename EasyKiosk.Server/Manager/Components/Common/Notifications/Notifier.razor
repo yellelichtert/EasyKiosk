@@ -1,0 +1,33 @@
+@rendermode InteractiveServer
+
+@using EasyKiosk.Server.Manager.Components.Common.Notifications.Base
+@using EasyKiosk.Server.Service
+
+@inject INotificationManager NotificationManager
+
+
+<div class="position-absolute m-3 d-flex flex-grow-1 flex-column justify-content-end" style="right: 0; bottom: 0; width: 15%; z-index: 999">
+
+
+        @foreach (var notification in NotificationManager.GetNotifications())
+        {
+            <DynamicComponent Type="@notification.ComponentType" Parameters="@notification.ComponentParameters"/>
+        }
+    
+    </div>
+}
+
+
+@code
+{
+    protected override Task OnInitializedAsync()
+    {
+        NotificationManager.OnChange += () => { InvokeAsync(StateHasChanged); };
+        return base.OnInitializedAsync();
+    }
+
+    
+}
+
+
+

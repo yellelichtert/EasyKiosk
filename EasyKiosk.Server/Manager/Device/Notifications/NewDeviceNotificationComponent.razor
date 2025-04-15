@@ -1,0 +1,27 @@
+@using EasyKiosk.Server.Manager.Components.Common.Notifications
+
+
+
+<NotificationWithLabel NotificationType="@Model.Type" DismissHandler="@(() => { Model.HandleResponse(false);})">
+
+    <div class="flex-grow-1 d-flex justify-content-between align-items-center">
+
+        <p>@Model.Message</p>
+
+
+        <div class="d-flex">
+            <button @onclick="(() => { Model.HandleResponse(true);})" class="btn btn-info">Y</button>
+            <button @onclick="() => { Model.HandleResponse(false);}" class="btn btn-warning">N</button>
+        </div>
+
+    </div>
+
+
+</NotificationWithLabel>
+
+
+
+@code {
+
+    [Parameter] public required NewDeviceNotification Model { get; set; }
+}
