@@ -37,6 +37,7 @@ public static class ModelBuilderExtensions
         admin.PasswordHash = passwordHasher.HashPassword(admin, password);
 
         builder.Entity<IdentityUser>().HasData(admin);
+        
     }
     
     

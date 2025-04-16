@@ -2,7 +2,6 @@
 @rendermode InteractiveServer
 
 @attribute [Authorize]
-
 @using Blazor.Bootstrap.Icons.Components
 @using EasyKiosk.Server.Manager.Components
 @using EasyKiosk.Core.Entities
@@ -40,7 +39,7 @@
                                 }
                                 else
                                 {
-                                    <option selected value="@_selectedProduct.CategoryId">@_menuService.GetCategoryName(_selectedProduct.CategoryId)</option>
+                                    <option selected value="@_selectedProduct.CategoryId">@_menuService.GetCategoryNameAsync(_selectedProduct.CategoryId)</option>
                                 }
                                 @foreach (var category in _menuService.GetCategories())
                                 {
@@ -149,7 +148,7 @@
                             <td>@product.Name</td>
                             <td>@product.Description</td>
                             <td>@product.Price</td>
-                            <td>@_menuService.GetCategoryName(product.CategoryId)</td>
+                            <td>@_menuService.GetCategoryNameAsync(product.CategoryId)</td>
                             <td><button class="btn btn-warning text-white" onclick="@(() => OpenProductForm(product))"><BiPencilSquare/></button></td>
                         </tr>
                     }
@@ -180,8 +179,6 @@
                     
                 </div>
                 
-                
-                    
             }
             
             
@@ -189,10 +186,7 @@
         
         
     </div>
-
-
-
-<Notifier @ref="_notifier"/>
+    
     
     
 

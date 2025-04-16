@@ -27,11 +27,11 @@ public class ProductRepository : IProductRepository
     
 
 
-    public Product? GetById(Guid id)
+    public async Task<Product?> GetByIdAsync(Guid id)
     {
-        using (var db  = _dbFactory.CreateDbContext())
+        using (var db  = await _dbFactory.CreateDbContextAsync())
         {
-            return db.Products.FirstOrDefault(p => p.Id == id);
+            return await db.Products.FirstOrDefaultAsync(p => p.Id == id);
         }
     }
  

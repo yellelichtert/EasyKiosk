@@ -22,7 +22,6 @@ public class NotificationManager : INotificationManager
         
         _notifications.Add(notification);
         
-        notification.OnDismiss += Remove;
         OnChange?.Invoke();
         
         Console.WriteLine("Done Adding Notification...");
@@ -34,7 +33,6 @@ public class NotificationManager : INotificationManager
         Console.WriteLine("Removing Notification...");
 
         _notifications.Remove(notification);
-        notification.OnDismiss -= Remove;
         OnChange?.Invoke();
         
         Console.WriteLine("Done Removing Notification...");

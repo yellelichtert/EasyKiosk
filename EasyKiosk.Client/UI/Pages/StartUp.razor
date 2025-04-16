@@ -1,0 +1,19 @@
+@page "/"
+
+
+@if (ErrorMessage is not null)
+{
+    <h1 class="align-self-center text-center text-warning flex-grow-1">@ErrorMessage</h1>
+}
+else if (IsRequestingToken)
+{
+    <h1 class="align-self-center text-center flex-grow-1">Requesting token....</h1>
+}
+else if (IsConnecting)
+{
+    <h1 class="align-self-center text-center flex-grow-1">Connecting to server....</h1>
+}
+else
+{
+    <h1 class="align-self-center text-center flex-grow-1">Connection Succesfull :)</h1>
+}

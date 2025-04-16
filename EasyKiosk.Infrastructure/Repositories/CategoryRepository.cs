@@ -27,11 +27,11 @@ public class CategoryRepository : ICategoryRepository
     
 
 
-    public Category? GetById(Guid id)
+    public async Task<Category?> GetByIdAsync(Guid id)
     {
-        using (var db = _dbFactory.CreateDbContext())
+        using (var db = await _dbFactory.CreateDbContextAsync())
         {
-            return db.Categories.FirstOrDefault(c => c.Id == id);
+            return await db.Categories.FirstOrDefaultAsync(c => c.Id == id);
         }
     }
 

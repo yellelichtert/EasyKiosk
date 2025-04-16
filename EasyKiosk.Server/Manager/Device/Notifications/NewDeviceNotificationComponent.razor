@@ -1,18 +1,76 @@
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection.Metadata
+@using EasyKiosk.Core.Entities
+@using EasyKiosk.Core.Enums
+@using EasyKiosk.Core.Services
 @using EasyKiosk.Server.Manager.Components.Common.Notifications
+@using EasyKiosk.Server.Service
 
 
 
-<NotificationWithLabel NotificationType="@Model.Type" DismissHandler="@(() => { Model.HandleResponse(false);})">
+@inject INotificationManager NotificationManager;
+@inject IDeviceService DeviceService;
 
+<NotificationWithLabel NotificationType="@Model.Type" DismissHandler="HandleDeny">
+   
     <div class="flex-grow-1 d-flex justify-content-between align-items-center">
 
         <p>@Model.Message</p>
 
-
-        <div class="d-flex">
-            <button @onclick="(() => { Model.HandleResponse(true);})" class="btn btn-info">Y</button>
-            <button @onclick="() => { Model.HandleResponse(false);}" class="btn btn-warning">N</button>
-        </div>
+        
+        @if (_showNameField || _showTypeSelect)
+        {
+        
+            
+            <EditForm Model="@inputModel" class="d-flex" OnValidSubmit="HandleCreate" OnInvalidSubmit="HandleInvalidSubmit">
+                <DataAnnotationsValidator/>
+                @if (_showNameField)
+                {
+                    <div class="d-flex">
+                        <InputText @bind-Value="@inputModel.Name"/>
+                        <button type="button" @onclick="(() => {_showNameField = false; _showTypeSelect = true;})">-></button>
+                    </div>   
+                }
+                else
+                {
+                    <InputSelect @bind-Value="inputModel.type">
+                        @if (inputModel.type == null)
+                        {
+                            <option selected value="0">Select A Type....</option>
+                            <option value="@DeviceType.Recevier">Receiver</option>
+                            <option value="@DeviceType.Kiosk">Kiosk</option>
+                        }
+                        else if (inputModel.type.Value == DeviceType.Kiosk)
+                        {
+                            <option selected value="@DeviceType.Kiosk">Kiosk</option>
+                            <option value="@DeviceType.Recevier">Receiver</option>
+                        }
+                        else
+                        {
+                            <option selected value="@DeviceType.Recevier">Receiver</option>
+                            <option value="@DeviceType.Kiosk">Kiosk</option>
+                        }
+                
+                
+                
+                    </InputSelect>
+                    <button type="submit" class="w-100 btn btn-lg btn-primary">+</button> 
+                   
+            
+                }
+                
+            </EditForm>
+            
+            
+            
+        }
+        else
+        {
+            <div class="d-flex">
+                <button @onclick="(() => { _showNameField = true;})" class="btn btn-info">Y</button>
+                <button @onclick="HandleDeny" class="btn btn-warning">N</button>
+            </div>
+        }
 
     </div>
 
@@ -24,4 +82,60 @@
 @code {
 
     [Parameter] public required NewDeviceNotification Model { get; set; }
+    [SupplyParameterFromForm] private InputModel inputModel { get; set; } = new();
+    
+    
+    private bool _showNameField;
+    private bool _showTypeSelect;
+
+
+    private async Task HandleCreate()
+    {
+        var newDevice = new Device()
+        {
+            Name = inputModel.Name,
+            DeviceType = inputModel.type!.Value
+        };
+
+        var createResult = await DeviceService.AddDeviceAsync(newDevice);
+
+    
+        if (createResult.IsError)
+        {
+            inputModel = new();
+            
+            _showNameField = false;
+            _showTypeSelect = false;
+            return;
+        }
+        
+        
+        Model.Tcs.SetResult(createResult.Value);
+        NotificationManager.Remove(Model);
+    }
+
+
+    private void HandleDeny()
+    {
+        Model.Tcs.SetResult(null);
+        NotificationManager.Remove(Model);
+    }
+
+
+    private void HandleInvalidSubmit()
+    {
+        _showTypeSelect = false;
+        _showNameField = true;
+    }
+    
+    internal sealed class InputModel()
+    {
+        [Required]
+        public string Name { get; set; }
+        [Required]
+        public DeviceType? type { get; set; }
+    }
+    
+    
+    
 }

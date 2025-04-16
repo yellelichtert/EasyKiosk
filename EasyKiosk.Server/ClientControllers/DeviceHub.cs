@@ -1,23 +1,24 @@
 using EasyKiosk.Server.Service;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Server.HttpSys;
 using Microsoft.AspNetCore.SignalR;
 
 namespace EasyKiosk.Server.ClientControllers;
 
+
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class DeviceHub : Hub
 {
-    private ITokenService _tokenService;
-    
-
-    public DeviceHub(ITokenService tokenService)
-    {
-        _tokenService = tokenService;
-    }
     
     
     public override async Task OnConnectedAsync()
     {
 
-        Console.WriteLine("Device Connected");
+       
+        
+        Console.WriteLine("Device Connected => " +  Context.GetHttpContext().User.Claims.First());
         
         await base.OnConnectedAsync();
     }

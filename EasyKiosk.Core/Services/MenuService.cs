@@ -49,7 +49,7 @@ public class MenuService : IMenuService
     
     public async Task<ErrorOr<bool>> DeleteProductAsync(Product product)
     {
-        if (_products.GetById(product.Id) is null)
+        if (await _products.GetByIdAsync(product.Id) is null)
             return Error.NotFound(description: "Product not Found!");
 
         await _products.DeleteAsync(product);
@@ -88,10 +88,13 @@ public class MenuService : IMenuService
 
     public IEnumerable<Category> GetCategories()
         => _categories.GetAll();
-    
-    
-    public string GetCategoryName(Guid id)
-        => _categories.GetById(id)!.Name;
+
+
+    public async Task<string> GetCategoryNameAsync(Guid id)
+    {
+        var category = await _categories.GetByIdAsync(id);
+        return category.Name;
+    }
     
     
     public async Task<ErrorOr<Category>> AddCategoryAsync(Category category)
@@ -121,7 +124,7 @@ public class MenuService : IMenuService
     
     public async Task<ErrorOr<bool>> DeleteCategoryAsync(Category category)
     {
-        var dbResult = _categories.GetById(category.Id);
+        var dbResult = await _categories.GetByIdAsync(category.Id);
         
         if (dbResult is null)
             return Error.NotFound(description: "Category not found!");

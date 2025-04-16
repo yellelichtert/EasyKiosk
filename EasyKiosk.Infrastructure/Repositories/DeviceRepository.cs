@@ -15,11 +15,11 @@ public class DeviceRepository : IDeviceRepository
     }
     
     
-    public Device? GetById(Guid id)
+    public async Task<Device?> GetByIdAsync(Guid id)
     {
-        using (var db = _contextFactory.CreateDbContext())
+        using (var db = await _contextFactory.CreateDbContextAsync())
         {
-            return db.Devices.FirstOrDefault(x => x.Id == id);
+            return await db.Devices.FirstOrDefaultAsync(x => x.Id == id);
         }
     }
 
@@ -31,9 +31,13 @@ public class DeviceRepository : IDeviceRepository
         }
     }
 
-    public Task AddAsync(Device entity)
+    public async Task AddAsync(Device entity)
     {
-        throw new NotImplementedException();
+        using (var db = _contextFactory.CreateDbContext())
+        {
+            await db.Devices.AddAsync(entity);
+            await db.SaveChangesAsync();
+        }
     }
 
     public Task UpdateAsync(Device entity)

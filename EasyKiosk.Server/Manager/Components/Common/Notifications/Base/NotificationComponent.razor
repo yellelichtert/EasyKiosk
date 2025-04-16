@@ -1,6 +1,10 @@
 @using EasyKiosk.Server.Service
 
-<NotificationWithLabel NotificationType="@Model.Type" DismissHandler="Model.Dismiss">
+@inject INotificationManager NotificationManager
+
+
+
+<NotificationWithLabel NotificationType="@Model.Type" DismissHandler="(() => NotificationManager.Remove(Model))">
     
         <p>@Model.Message</p>
     

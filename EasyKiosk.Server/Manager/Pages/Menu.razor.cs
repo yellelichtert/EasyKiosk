@@ -4,6 +4,8 @@ using EasyKiosk.Core.Entities;
 using EasyKiosk.Core.Repositories;
 using EasyKiosk.Core.Services;
 using EasyKiosk.Server.Manager.Components;
+using EasyKiosk.Server.Manager.Components.Common.Notifications.Base;
+using EasyKiosk.Server.Service;
 using ErrorOr;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
@@ -21,16 +23,17 @@ public partial class Menu : ComponentBase
     private List<Product> _checkedProducts;
     
     private Popup _popup;
-    private Notifier _notifier;
+    private INotificationManager _notificationManager;
     
     private bool _formLoading;
     private bool _imgLoading;
     private string? _formImgPath;
 
     
-    public Menu(IMenuService menuService)
+    public Menu(IMenuService menuService, INotificationManager notificationManager)
     {
         _menuService = menuService;
+        _notificationManager = notificationManager;
         
         _checkedProducts = new();
     }
@@ -186,7 +189,7 @@ public partial class Menu : ComponentBase
         _formImgPath = null;
         _formLoading = false;
         
-        _notifier.Clear();
+        _notificationManager.Clear();
     }
 
 
@@ -194,7 +197,9 @@ public partial class Menu : ComponentBase
     {
         foreach (var error in errors)
         {
-            _notifier.Add(Notifier.Type.Warning, error.Description);
+            _notificationManager.Add(
+                new Notification(error.Description, INotificationManager.Type.Warning
+                ));
         }
     }
     
