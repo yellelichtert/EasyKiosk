@@ -1,4 +1,4 @@
-namespace EasyKiosk.Core.Requests;
+namespace EasyKiosk.Core.Model.Requests;
 
 public record DeviceLoginRequest(
     Guid Id,

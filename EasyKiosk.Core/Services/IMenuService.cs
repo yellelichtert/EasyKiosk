@@ -1,4 +1,4 @@
-using EasyKiosk.Core.Entities;
+using EasyKiosk.Core.Model.Entities;
 using ErrorOr;
 
 namespace EasyKiosk.Core.Services;

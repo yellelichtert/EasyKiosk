@@ -1,4 +1,4 @@
-using EasyKiosk.Core.Entities;
+using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Repositories;
 using EasyKiosk.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;

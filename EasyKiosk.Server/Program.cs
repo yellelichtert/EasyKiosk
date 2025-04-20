@@ -1,13 +1,14 @@
 using System.Text;
+using EasyKiosk.Core.Factory;
+using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Repositories;
 using EasyKiosk.Core.Services;
 using EasyKiosk.Infrastructure.Auth;
 using EasyKiosk.Infrastructure.Context;
+using EasyKiosk.Infrastructure.Factory;
 using EasyKiosk.Infrastructure.Repositories;
 using EasyKiosk.Server.ClientControllers;
-using EasyKiosk.Server.DependencyInjection;
 using EasyKiosk.Server.Manager;
-using EasyKiosk.Server.Options;
 using EasyKiosk.Server.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -16,6 +17,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 //Repositories
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
@@ -27,9 +29,18 @@ builder.Services.AddTransient<IMenuService, MenuService>();
 builder.Services.AddTransient<IDeviceService, DeviceService>();
 
 
+//Options
+builder.Services.Configure<EasyKiosk.Core.Model.Options.TokenOptions>(
+    builder.Configuration.GetSection(nameof(TokenOptions)));
+
+//Factories
+builder.Services.AddScoped<ITokenFactory<Device>, DeviceTokenFactory>();
+
+
 //Ui
 builder.Services.AddSingleton<INotificationManager, NotificationManager>();
 
+    
 //DbContext
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContextFactory<EasyKioskDbContext>(
@@ -45,7 +56,6 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccesor>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
-builder.Services.ConfigureEasyKioskOptions(builder.Configuration);
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(options =>
@@ -60,15 +70,15 @@ builder.Services.AddAuthentication(options =>
         {
             ValidateAudience = false,
             ValidateIssuer = true,
-            ValidIssuer = builder.Configuration[$"{nameof(DeviceAuthOptions)}:Issuer"],
+            ValidIssuer = builder.Configuration[$"{nameof(TokenOptions)}:Issuer"],
             ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration[$"{nameof(DeviceAuthOptions)}:SecretKey"])),
+                Encoding.UTF8.GetBytes(builder.Configuration[$"{nameof(TokenOptions)}:SecretKey"])),
             ValidateIssuerSigningKey = true
         };
     })
     .AddIdentityCookies();
-
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -88,6 +98,8 @@ builder.Services.AddSignalR();
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddRazorPages();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
@@ -138,10 +150,7 @@ app.UseEndpoints(endpoints
     => endpoints.MapControllers());
 
 
-
-
-
-
+app.MapRazorPages();
 
 
 

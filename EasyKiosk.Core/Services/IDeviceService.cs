@@ -1,5 +1,6 @@
-using EasyKiosk.Core.Entities;
-using EasyKiosk.Core.Requests;
+using EasyKiosk.Core.Model.Entities;
+using EasyKiosk.Core.Model.Requests;
+using EasyKiosk.Core.Model.Responses;
 using ErrorOr;
 
 namespace EasyKiosk.Core.Services;
@@ -8,8 +9,8 @@ public interface IDeviceService
 {
     Device[] GetAllDevices();   
 
-    Task<ErrorOr<Device>> ValidateLoginAsync(DeviceLoginRequest request);
+    Task<ErrorOr<DeviceLoginResponse>> LoginAsync(DeviceLoginRequest request);
     
-    Task<ErrorOr<(Device, string)>> AddDeviceAsync(Device device);
+    Task<ErrorOr<DeviceRegisterResponse>> AddDeviceAsync(Device device);
 
 }

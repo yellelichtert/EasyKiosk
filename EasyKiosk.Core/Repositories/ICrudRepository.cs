@@ -1,4 +1,4 @@
-using EasyKiosk.Core.Entities;
+using EasyKiosk.Core.Model.Entities;
 
 namespace EasyKiosk.Core.Repositories;
 

@@ -29,4 +29,13 @@
       <None Include="wwwroot\IMG\1b1b58d1-c850-4516-86c3-7c96f28a1718.jpg" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Remove="appsettings.Development.json" />
+      <Resource Include="appsettings.Development.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <Content Remove="appsettings.json" />
+      <Resource Include="appsettings.json" />
+    </ItemGroup>
+
 </Project>

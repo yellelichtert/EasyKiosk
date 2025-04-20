@@ -1,4 +1,4 @@
-namespace EasyKiosk.Core.Enums;
+namespace EasyKiosk.Core.Model.Enums;
 
 public enum DeviceType
 {

@@ -1,4 +1,4 @@
-namespace EasyKiosk.Core.Entities;
+namespace EasyKiosk.Core.Model.Entities;
 
 public class Order : Entity
 {

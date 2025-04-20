@@ -1,4 +1,4 @@
-using EasyKiosk.Core.Entities;
+using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Repositories;
 using ErrorOr;
 

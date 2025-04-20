@@ -1,4 +1,4 @@
-using EasyKiosk.Core.Entities;
+using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Repositories;
 using EasyKiosk.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
@@ -33,16 +33,20 @@ public class DeviceRepository : IDeviceRepository
 
     public async Task AddAsync(Device entity)
     {
-        using (var db = _contextFactory.CreateDbContext())
+        using (var db = await _contextFactory.CreateDbContextAsync())
         {
             await db.Devices.AddAsync(entity);
             await db.SaveChangesAsync();
         }
     }
 
-    public Task UpdateAsync(Device entity)
+    public async Task UpdateAsync(Device entity)
     {
-        throw new NotImplementedException();
+        using (var db = await _contextFactory.CreateDbContextAsync())
+        {
+            db.Devices.Update(entity);
+            await db.SaveChangesAsync();
+        }
     }
 
     public Task DeleteAsync(Device entity)

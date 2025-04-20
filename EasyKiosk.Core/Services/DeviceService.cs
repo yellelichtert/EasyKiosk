@@ -1,6 +1,8 @@
-using EasyKiosk.Core.Entities;
+using EasyKiosk.Core.Factory;
+using EasyKiosk.Core.Model.Entities;
+using EasyKiosk.Core.Model.Requests;
+using EasyKiosk.Core.Model.Responses;
 using EasyKiosk.Core.Repositories;
-using EasyKiosk.Core.Requests;
 using EasyKiosk.Core.Utils;
 using ErrorOr;
 
@@ -10,11 +12,12 @@ namespace EasyKiosk.Core.Services;
 public class DeviceService : IDeviceService
 {
     private readonly IDeviceRepository _repository;
+    private readonly ITokenFactory<Device> _tokenFactory;
 
-
-    public DeviceService(IDeviceRepository repository)
+    public DeviceService(IDeviceRepository repository, ITokenFactory<Device> tokenFactory)
     {
         _repository = repository;
+        _tokenFactory = tokenFactory;
     }
     
     
@@ -23,31 +26,49 @@ public class DeviceService : IDeviceService
 
 
 
-    public async Task<ErrorOr<Device>> ValidateLoginAsync(DeviceLoginRequest request)
+    public async Task<ErrorOr<DeviceLoginResponse>> LoginAsync(DeviceLoginRequest request)
     {
         var device = await _repository.GetByIdAsync(request.Id);
         
-        if (device == null || !BCrypt.Net.BCrypt.EnhancedVerify(request.Key, device.Key))
+        if (device == null)
+        {
+            return Error.NotFound();
+        }
+
+        if (!BCrypt.Net.BCrypt.Verify(request.Key, device.Key))
         {
             return Error.Unauthorized();
         }
 
-        return device;
-    }
-
-    public async Task<ErrorOr<(Device, string)>> AddDeviceAsync(Device device)
-    {
-        var key = KeyGenerator.GenerateKey(50);
-        device.Key = BCrypt.Net.BCrypt.EnhancedHashPassword(key);
+        var refreshToken = CreateRefreshKey(device);
+        await _repository.UpdateAsync(device);
         
+        return new DeviceLoginResponse(_tokenFactory.CreateToken(device), refreshToken);
+    }
+    
+    
+
+    public async Task<ErrorOr<DeviceRegisterResponse>> AddDeviceAsync(Device device)
+    {
+        var refreshKey = CreateRefreshKey(device);
         if (!ValidateDevice(device, out var errors))
             return errors;
 
         await _repository.AddAsync(device);
-        return (device, key);
+        
+        
+        return new DeviceRegisterResponse(device.Id, device.DeviceType, _tokenFactory.CreateToken(device), refreshKey);
     }
 
 
+    private string CreateRefreshKey(Device device)
+    {
+        var key = KeyGenerator.GenerateKey(20);
+        device.Key = BCrypt.Net.BCrypt.HashPassword(key);
+        
+        return key;
+    }
+    
 
     private bool ValidateDevice(Device device, out List<Error> errors)
     {

@@ -1,6 +1,6 @@
-using EasyKiosk.Core.Enums;
+using EasyKiosk.Core.Model.Enums;
 
-namespace EasyKiosk.Core.Entities;
+namespace EasyKiosk.Core.Model.Entities;
 
 public class Device : Entity
 {

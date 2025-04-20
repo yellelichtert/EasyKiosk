@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace EasyKiosk.Core.Entities;
+namespace EasyKiosk.Core.Model.Entities;
 
 public class Entity
 {

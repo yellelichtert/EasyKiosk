@@ -1,38 +1,65 @@
 ﻿@using EasyKiosk.Server.Manager.Components.Common.Notifications
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
 @inherits LayoutComponentBase
 
+@inject NavigationManager NavigationManager;
 
-<div class="page overflow-hidden">
+@attribute [Authorize]
+
+
+<AuthorizeView>
+
+    <NotAuthorized>
+        @(() => NavigationManager.NavigateTo("/login"))
+    </NotAuthorized>
     
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
+    
+    <Authorized>
 
-    <main class="d-flex flex-column w-auto">
-        <div class="top-row">
-            <a href="/login">Sign out</a>
+        <div class="page overflow-hidden">
+
+            <div class="sidebar">
+                <NavMenu/>
+            </div>
+
+
+            <main class="d-flex flex-column w-auto">
+                <div class="top-row">
+                    <a href="/login">Sign out</a>
+                </div>
+
+
+                <div class="container-fluid d-flex h-100 w-100 position-relative">
+
+                    @Body
+
+                </div>
+
+                <Notifier/>
+
+
+            </main>
+
+
+
+
+
         </div>
 
-        
-        <div class="container-fluid d-flex h-100 w-100 position-relative">
-            
-            @Body
-            
+        <div id="blazor-error-ui" data-nosnippet>
+            An unhandled error has occurred.
+            <a href="." class="reload">Reload</a>
+            <span class="dismiss">🗙</span>
         </div>
-
-        <Notifier/>
         
-        
-    </main>
+    </Authorized>
     
-    
+</AuthorizeView>
 
-    
-    
-</div>
 
-<div id="blazor-error-ui" data-nosnippet>
-    An unhandled error has occurred.
-    <a href="." class="reload">Reload</a>
-    <span class="dismiss">🗙</span>
-</div>
+
+
+
