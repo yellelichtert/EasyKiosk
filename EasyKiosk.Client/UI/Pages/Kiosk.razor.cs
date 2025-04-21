@@ -1,6 +1,9 @@
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Text.Json;
+using System.Threading.Tasks;
 using BlazorBootstrap;
-using EasyKiosk.Core.Entities;
+using EasyKiosk.Core.Model.Entities;
 using Microsoft.AspNetCore.Components;
 using Button = BlazorBootstrap.Button;
 

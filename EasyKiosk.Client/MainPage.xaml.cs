@@ -1,4 +1,6 @@
-﻿namespace EasyKiosk.Client;
+﻿using Microsoft.Maui.Controls;
+
+namespace EasyKiosk.Client;
 
 public partial class MainPage : ContentPage
 {

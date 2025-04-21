@@ -47,6 +47,8 @@ public class ClientAuthController : Controller
     [Route("/Device/Register")]
     public async Task<ActionResult<DeviceRegisterResponse>> RegisterAsync()
     {
+        Console.WriteLine("Register Hit");
+        
         TaskCompletionSource<DeviceRegisterResponse?> tcs = new();
         NewDeviceNotification notification = new(tcs);
         
