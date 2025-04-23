@@ -1,31 +1,30 @@
-@page "/"
-@using System.Text.Json
-@using EasyKiosk.Core.Managers
+@using System.Reflection.Metadata
+@using EasyKiosk.Client.Manager
 @using EasyKiosk.Core.Model.Enums
-@using EasyKiosk.Core.Model.Requests
-@using EasyKiosk.Core.Model.Responses
-@using EasyKiosk.Core.Model.Settings
+
+@page "/"
 
 
+@inject ConnectionManager ConnectionManager
+@inject NavigationManager NavigationManager
 
-@inject SettingsManager<DeviceSettings> SettingsManager;
-@inject NavigationManager NavigationManager;
 
-<div class="d-flex w-100 flex-grow-1 align-items-center justify-content-center">
+<div class="d-flex w-100 flex-grow-1 align-items-center justify-content-center bg-warning-xs bg-dark-sm bg-info-md bg-light-xl">
     
     
-    <div class="d-flex flex-row w-50 h-50 card shadow">
+    <div class="d-flex flex-column w-75 h-50 card shadow justify-content-center align-items-center">
         
         <div class="d-flex w-50 flex-grow align-items-center justify-content-center text-center">
-            <h1>Welcome!</h1>
+            <h1>Logo</h1>
         </div>
 
        
         <div class="d-flex flex-column w-75 p-5">
 
-            @if (SettingsManager.Model.IsInitialSetup || _isRegistering)
+            @if (_isInitialSetup)
             {
                 <h3>Let's get started.....</h3>
+                <p>To connect to the server, you'll need to fill in the server adres....</p>
 
                 if (_isRegistering)
                 {
@@ -33,33 +32,30 @@
                 }
                 else
                 {
-                    <EditForm Model="SettingsManager.Model" Class="d-flex flex-column justify-content-between" FormName="ConnectionSettings">
+                    <EditForm Model="_input" Class="d-flex flex-column justify-content-between" FormName="ConnectionSettings">
                 
                 
                         <div class="d-flex justify-content-between">
                             <div class="col">
                                 <label>Ip adress:</label>
-                                <TextInput @bind-Value="SettingsManager.Model.ServerAdress"></TextInput>
+                                <TextInput @bind-Value="_input.IpAddress"></TextInput>
                             </div>
                 
                             <div class="col-3">
                                 <label>Port:</label>
-                                <InputNumber @bind-Value="SettingsManager.Model.Port"></InputNumber>
+                                <InputNumber @bind-Value="_input.Port"></InputNumber>
                             </div>
                         </div>
                 
                 
                         <div class="d-flex align-items-end">
-                            <button type="button" @onclick="HandleDeviceRegistration">Connect</button>
+                            <button type="button" @onclick="(HandleRegistration)">Connect</button>
                         </div>
                     </EditForm>
                 }
             }
             else if (!_hasErrors)
             {
-                @(() => HandleLoginAsync())
-                
-                
                 <h3> Logging in.....</h3>
             }
             else
@@ -81,80 +77,68 @@
 
 @code {
 
-    private bool _isRegistering = false;
-    private bool _hasErrors = false;
+    private Input _input = new Input();
+
+    private bool _isInitialSetup;
+    private bool _isRegistering;
+    private bool _hasErrors;
     private string _errorMessage;
 
-    private async Task HandleDeviceRegistration()
+
+    protected override async Task OnInitializedAsync()
     {
-        const string endPoint = "/Device/Register";
-
-        _isRegistering = true;
-
-        Console.WriteLine("Starting request on adress => " + SettingsManager.Model.FullAdress+endPoint);
-        var httpClient = new HttpClient();
-        var result = await httpClient.GetAsync(SettingsManager.Model.FullAdress + endPoint);
-        
-        
-        Console.WriteLine("DoneWithRequest");
-
-        if (!result.IsSuccessStatusCode)
+        try
         {
-            _hasErrors = true;
-            _errorMessage = "Error bij Register";
-            return;
+            Console.WriteLine("Initilizing setup");
+        
+            await base.OnInitializedAsync();
+
+            _isInitialSetup = ConnectionManager.IsInitialSetup();
+            if (!_isInitialSetup)
+            {
+                await HandleLogin();
+            }
+            
         }
-        
-        var response = await JsonSerializer.DeserializeAsync<DeviceRegisterResponse>(await result.Content.ReadAsStreamAsync());
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
 
-        SettingsManager.Model.DeviceId = response.Id;
-        SettingsManager.Model.DeviceType = response.Type;
-        SettingsManager.Model.AccesKey = response.Token;
-        SettingsManager.Model.RefreshKey = response.Refresh;
-
-        SettingsManager.Model.IsInitialSetup = false;
-        
-        await SettingsManager.SaveChangesAsync();
-
-        _isRegistering = false;
     }
 
 
-    private async Task HandleLoginAsync()
+    private async Task HandleRegistration()
     {
-        const string endPoint = "/Device/Login";
+        _isRegistering = true;
+        await ConnectionManager.RegisterAsync(_input.IpAddress, _input.Port);
+        _isRegistering = false;
 
-        var loginRequest = new DeviceLoginRequest(SettingsManager.Model.DeviceId.Value, SettingsManager.Model.RefreshKey);
+        await HandleLogin();
+    }
 
-        var content = new StringContent(JsonSerializer.Serialize(loginRequest));
-        
-        var httpClient = new HttpClient();
-        var result = await httpClient.PostAsync(SettingsManager.Model.FullAdress + endPoint, content);
 
-        if (!result.IsSuccessStatusCode)
+    private async Task HandleLogin()
+    {
+        var deviceType =  await ConnectionManager.LoginAsync();
+
+        if (deviceType == DeviceType.Kiosk)
         {
-            _hasErrors = true;
-            _errorMessage = "Error bij login";
-            return;
-        }
-
-        var response = await JsonSerializer.DeserializeAsync<DeviceLoginResponse>(await result.Content.ReadAsStreamAsync());
-        
-        SettingsManager.Model.AccesKey = response.Token;
-        SettingsManager.Model.RefreshKey = response.Refresh;
-        await SettingsManager.SaveChangesAsync();
-
-
-        if (SettingsManager.Model.DeviceType == DeviceType.Kiosk)
-        {
-            NavigationManager.NavigateTo("/kiosk");
+            NavigationManager.NavigateTo("/Kiosk");
         }
         else
         {
             NavigationManager.NavigateTo("/Receiver");
         }
-        
-        
     }
 
+
+
+    private class Input
+    {
+        public string IpAddress { get; set; }
+        public int Port { get; set; }
+    }
+    
 }

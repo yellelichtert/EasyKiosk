@@ -63,7 +63,6 @@
     <ItemGroup>
         <PackageReference Include="Blazor.Bootstrap" Version="3.3.1" />
         <PackageReference Include="Blazor.Bootstrap.Icons" Version="1.0.1" />
-        <PackageReference Include="Blazor.LocalStorage" Version="9.0.1" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.4" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.4" />
         <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.4" />
