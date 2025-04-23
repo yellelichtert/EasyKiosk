@@ -63,7 +63,6 @@ public partial class Menu : ComponentBase
         => _menuService.GetProducts().Where(p => p.Category != category).ToList();
     
     
-    
     private async Task HandleProductSubmit()
     {
         _formLoading = true;

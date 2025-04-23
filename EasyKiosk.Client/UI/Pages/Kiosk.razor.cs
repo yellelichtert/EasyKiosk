@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using BlazorBootstrap;
+using EasyKiosk.Client.Manager;
 using EasyKiosk.Core.Model.Entities;
 using Microsoft.AspNetCore.Components;
 using Button = BlazorBootstrap.Button;
@@ -11,43 +12,37 @@ namespace EasyKiosk.Client.UI.Pages;
 
 public partial class Kiosk : ComponentBase
 {
+    private ConnectionManager _connectionManager;
+    
     [Parameter] public bool IsLoading { get; set; } = true;
-    [Parameter] public List<Category>? Categories { get; set; }
+    [Parameter] public Category[]? Categories { get; set; }
     [Parameter] public Category? SelectedCategory { get; set; }
 
     [Parameter] public Order? Order { get; set; }
     
     private Offcanvas _orderCanvas = default!;
     private Button _orderButton = default!;
+
+
+    public Kiosk(ConnectionManager connectionManager)
+    {
+        _connectionManager = connectionManager;
+    }
+    
+    
     
     protected override async Task OnInitializedAsync()
     {
+        
         await base.OnInitializedAsync();
-        await GetCategoriesAsync();
-
+        var dataJson = await _connectionManager.GetInitialDataAsync();
+        Categories = JsonSerializer.Deserialize<Category[]>(dataJson);
         IsLoading = false;
     }
-
-    private async Task GetCategoriesAsync()
-    {
-        var client = new HttpClient();
-        var response = await client.GetAsync("http://192.168.99.48:5205/data/kiosk");
-
-        
-        var jsonResponse = await response.Content.ReadAsStringAsync();
-        var categories = JsonSerializer.Deserialize<List<Category>>(jsonResponse);
-
-        var allProducts = new Category(){Name = "All"};
-        foreach (var category in categories)
-        {
-            allProducts.Products.AddRange(category.Products);
-        }
-        
-        categories.Insert(0, allProducts);
-        
-        SelectedCategory = allProducts;
-        Categories = categories;
-    }
+    
+    
+   
+    
 
     private async Task SendOrderAsync()
     {

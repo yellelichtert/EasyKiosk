@@ -1,4 +1,4 @@
-@using System.Reflection.Metadata
+@using System.ComponentModel.DataAnnotations
 @using EasyKiosk.Client.Manager
 @using EasyKiosk.Core.Model.Enums
 
@@ -14,49 +14,73 @@
     
     <div class="d-flex flex-column w-75 h-50 card shadow justify-content-center align-items-center">
         
-        <div class="d-flex w-50 flex-grow align-items-center justify-content-center text-center">
-            <h1>Logo</h1>
+        <div class="d-flex h-25 justify-content-center">
+            <img src="../img/logo.png" alt="Easy kiosk logo" class="img-fluid">
         </div>
 
        
-        <div class="d-flex flex-column w-75 p-5">
+        <div class="d-flex flex-column p-5">
 
-            @if (_isInitialSetup)
+            @if (_isInitialSetup && !_isRegistering)
             {
-                <h3>Let's get started.....</h3>
-                <p>To connect to the server, you'll need to fill in the server adres....</p>
+                <h5>Let's get started.....</h5>
+                <p class="muted">To connect to the server, you'll need to fill in the server adres...</p>
 
-                if (_isRegistering)
-                {
-                    <p>Registering device.... please continue on the server</p>
-                }
-                else
-                {
-                    <EditForm Model="_input" Class="d-flex flex-column justify-content-between" FormName="ConnectionSettings">
-                
-                
-                        <div class="d-flex justify-content-between">
-                            <div class="col">
-                                <label>Ip adress:</label>
-                                <TextInput @bind-Value="_input.IpAddress"></TextInput>
-                            </div>
-                
-                            <div class="col-3">
-                                <label>Port:</label>
-                                <InputNumber @bind-Value="_input.Port"></InputNumber>
-                            </div>
+                <EditForm Model="_input" OnValidSubmit="HandleRegistration" Class="d-flex flex-column justify-content-between" FormName="ConnectionSettings">
+                    <DataAnnotationsValidator/>
+                         
+                    <div class="d-flex">
+                        <label class="col-3">Ip adress:</label>
+                        <label class="col-3 offset-7">Port:</label>
+                    </div>
+                        
+                        
+                    <div class="row">
+                        <div class="d-flex w-20 container-fluid m-0">
+                            <InputNumber @bind-Value="_input.Ip1" class="col-12"/>.
                         </div>
-                
-                
-                        <div class="d-flex align-items-end">
-                            <button type="button" @onclick="(HandleRegistration)">Connect</button>
+                            
+                        <div class="d-flex w-20 container-fluid">
+                            <InputNumber @bind-Value="_input.Ip2" class="col-12"/>.
                         </div>
-                    </EditForm>
-                }
+                            
+                        <div class="d-flex w-20 container-fluid">
+                            <InputNumber @bind-Value="_input.Ip3" class="col-12"/>.
+                        </div>
+                            
+                        <div class="d-flex w-20 container-fluid">
+                            <InputNumber @bind-Value="_input.Ip4" class="col-12"/>:
+                        </div>
+                            
+                        <div class="d-flex w-20 container-fluid">
+                            <InputNumber @bind-Value="_input.Port" class="col-12"/>
+                        </div>
+                    </div>
+                
+                        
+                    <div class="d-flex justify-content-end mt-5">
+                        <button type="submit" class="btn btn-primary">Connect</button>
+                    </div>
+                </EditForm>
             }
             else if (!_hasErrors)
             {
-                <h3> Logging in.....</h3>
+
+                if (_isRegistering)
+                {
+                    <h5>Registering device</h5>
+                    <p class="muted">Continue setting up this device on the server...</p>
+                }
+                else
+                {
+                    <h5> Logging in.....</h5>
+                }
+                
+                
+                <div class="d-flex justify-content-center mt-2">
+                    <Spinner Size="SpinnerSize.Large"/>
+                </div>
+                
             }
             else
             {
@@ -90,7 +114,7 @@
         try
         {
             Console.WriteLine("Initilizing setup");
-        
+
             await base.OnInitializedAsync();
 
             _isInitialSetup = ConnectionManager.IsInitialSetup();
@@ -98,7 +122,7 @@
             {
                 await HandleLogin();
             }
-            
+
         }
         catch (Exception e)
         {
@@ -112,8 +136,12 @@
     private async Task HandleRegistration()
     {
         _isRegistering = true;
-        await ConnectionManager.RegisterAsync(_input.IpAddress, _input.Port);
+
+        await ConnectionManager.RegisterAsync(
+            $"{_input.Ip1}.{_input.Ip2}.{_input.Ip3}.{_input.Ip4}:{_input.Port}");
+
         _isRegistering = false;
+        _isInitialSetup = false;
 
         await HandleLogin();
     }
@@ -121,7 +149,7 @@
 
     private async Task HandleLogin()
     {
-        var deviceType =  await ConnectionManager.LoginAsync();
+        var deviceType = await ConnectionManager.LoginAsync();
 
         if (deviceType == DeviceType.Kiosk)
         {
@@ -135,10 +163,14 @@
 
 
 
-    private class Input
+    private sealed class Input
     {
-        public string IpAddress { get; set; }
-        public int Port { get; set; }
+        [Range(0, 255)] public int Ip1 { get; set; }
+        [Range(0, 255)] public int Ip2 { get; set; }
+        [Range(0, 255)] public int Ip3 { get; set; }
+        [Range(0, 255)] public int Ip4 { get; set; }
+        [Range(0, 65535)] public int Port { get; set; }
     }
-    
+
+    }
 }

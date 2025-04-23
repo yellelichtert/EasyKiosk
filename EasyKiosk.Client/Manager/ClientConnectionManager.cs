@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using EasyKiosk.Client.Model;
@@ -16,14 +17,12 @@ public class ConnectionManager
     
     
     
-    public async Task RegisterAsync(string ip, int port)
+    public async Task RegisterAsync(string ipAdress)
     {
         const string endPoint = "/Device/Register";
         
-        var serverAdress = $"{ip}:{port}";
-        
         var httpClient = new HttpClient();
-        var result = await httpClient.GetAsync($"http://{serverAdress}{endPoint}");
+        var result = await httpClient.GetAsync($"http://{ipAdress}{endPoint}");
         
 
         if (!result.IsSuccessStatusCode)
@@ -35,7 +34,7 @@ public class ConnectionManager
         var response = await JsonSerializer.DeserializeAsync<DeviceRegisterResponse>(await result.Content.ReadAsStreamAsync());
 
         
-        Preferences.Set(PreferenceNames.ServerAddress, serverAdress);
+        Preferences.Set(PreferenceNames.ServerAddress, ipAdress);
         Preferences.Set(PreferenceNames.DeviceId, response.Id.ToString());
         Preferences.Set(PreferenceNames.DeviceType, (int)response.Type);
         Preferences.Set(PreferenceNames.AccessKey, response.Token);
@@ -77,5 +76,33 @@ public class ConnectionManager
 
         
         return (DeviceType)Preferences.Get(PreferenceNames.DeviceType, -1);
+    }
+
+
+
+
+
+    public async Task<string> GetInitialDataAsync()
+    {
+        var serverAddress = Preferences.Get(PreferenceNames.ServerAddress, null);
+
+        var httpClient = new HttpClient();
+        var content = new StringContent(Preferences.Get(PreferenceNames.DeviceType, null), Encoding.UTF8, "application/json");
+        
+        httpClient.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("bearer", Preferences.Get(PreferenceNames.AccessKey, null));
+
+
+        var response = await httpClient.GetAsync($"http://{serverAddress}/Device/Data");
+
+
+        if (!response.IsSuccessStatusCode)
+        {
+            Console.WriteLine(response.StatusCode);
+            Console.WriteLine(response.Content);
+            throw new Exception("Handle GetDataException");
+        }
+
+        return await response.Content.ReadAsStringAsync();
     }
 }

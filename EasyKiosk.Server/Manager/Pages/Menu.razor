@@ -146,7 +146,7 @@
                             <td>@product.Name</td>
                             <td>@product.Description</td>
                             <td>@product.Price</td>
-                            <td>@_menuService.GetCategoryNameAsync(product.CategoryId)</td>
+                            <td>@_menuService.GetCategoryNameAsync(product.CategoryId).Result</td>
                             <td><button class="btn btn-warning text-white" onclick="@(() => OpenProductForm(product))"><BiPencilSquare/></button></td>
                         </tr>
                     }
