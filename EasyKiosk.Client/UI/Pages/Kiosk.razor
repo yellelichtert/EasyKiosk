@@ -1,16 +1,17 @@
 @page "/Kiosk"
 
-
-<h1>KIOSK</h1>
-
-
 @if (IsLoading)
 {
-    <h1 class="align-self-center text-center flex-grow-1">Loading....</h1>
+    <div class="d-flex flex-column flex-grow-1 aling-content-center justify-content-center">
+        
+        <h1 class="align-self-center text-center flex-grow-1">@LoadingMessage </h1>
+        <Spinner Size="SpinnerSize.Large" />
+        
+    </div>
 }
 else if (Order is null)
 {
-    <div class="h-100 w-100 d-flex align-items-center justify-content-center" @onclick="() => {Order = new(); }">
+    <div class="h-100 w-100 d-flex align-items-center justify-content-center" @onclick="(() => {Order = new(); })">
         Tap to Order....
     </div>
 }

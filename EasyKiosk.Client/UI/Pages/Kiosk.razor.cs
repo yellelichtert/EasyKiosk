@@ -1,5 +1,5 @@
 using System;
-
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlazorBootstrap;
 using EasyKiosk.Client.Manager;
@@ -13,7 +13,9 @@ public partial class Kiosk : ComponentBase
 {
     private ConnectionManager _connectionManager;
     
-    [Parameter] public bool IsLoading { get; set; } = true;
+    [Parameter] public bool IsLoading { get; set; }
+    [Parameter] public string LoadingMessage { get; set; }    
+    
     [Parameter] public Category[]? Categories { get; set; }
     [Parameter] public Category? SelectedCategory { get; set; }
 
@@ -32,15 +34,29 @@ public partial class Kiosk : ComponentBase
     
     protected override async Task OnInitializedAsync()
     {
-        Console.WriteLine("Initilizing Kiosk");
+        IsLoading = true;
         
         await base.OnInitializedAsync();
         
-        Console.WriteLine("Fetching data...");
+        LoadingMessage = "Fetching data...";
+        var categories = await _connectionManager.GetInitialDataAsync<List<Category>>();
 
-        Categories = await _connectionManager.GetInitialDataAsync<Category[]>();
-        
-        Console.WriteLine("Done Fetching data \n Categories count: " + Categories.Length);
+        var allProducts = new List<Product>();
+        foreach (var category in categories)
+        {
+            allProducts.AddRange(category.Products);
+        }
+
+        var generalCategory = new Category()
+        {
+            Name = "All",
+            Products = allProducts
+        };
+
+        categories.Insert(0, generalCategory);
+        Categories = categories.ToArray();
+
+        SelectedCategory = categories[0];
         
         IsLoading = false;
     }
@@ -48,7 +64,6 @@ public partial class Kiosk : ComponentBase
     
    
     
-
     private async Task SendOrderAsync()
     {
         _orderButton.ShowLoading("Sending order");
