@@ -88,13 +88,6 @@ public class MenuService : IMenuService
 
     public IEnumerable<Category> GetCategories()
         => _categories.GetAll();
-
-
-    public async Task<string> GetCategoryNameAsync(Guid id)
-    {
-        var category = await _categories.GetByIdAsync(id);
-        return category.Name;
-    }
     
     
     public async Task<ErrorOr<Category>> AddCategoryAsync(Category category)

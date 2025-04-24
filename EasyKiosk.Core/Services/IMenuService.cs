@@ -12,7 +12,6 @@ public interface IMenuService
     
 
     IEnumerable<Category> GetCategories();
-    Task<string> GetCategoryNameAsync(Guid id);
     Task<ErrorOr<Category>> AddCategoryAsync(Category category);
     Task<ErrorOr<Category>> UpdateCategoryAsync(Category category);
     Task<ErrorOr<bool>> DeleteCategoryAsync(Category category);

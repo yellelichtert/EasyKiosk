@@ -37,7 +37,7 @@
                                 }
                                 else
                                 {
-                                    <option selected value="@_selectedProduct.CategoryId">@_menuService.GetCategoryNameAsync(_selectedProduct.CategoryId)</option>
+                                    <option selected value="@_selectedProduct.CategoryId">@_menuService.GetCategories().First(c => c.Id == _selectedProduct.CategoryId).Name</option>
                                 }
                                 @foreach (var category in _menuService.GetCategories())
                                 {
@@ -146,7 +146,7 @@
                             <td>@product.Name</td>
                             <td>@product.Description</td>
                             <td>@product.Price</td>
-                            <td>@_menuService.GetCategoryNameAsync(product.CategoryId).Result</td>
+                            <td>@_menuService.GetCategories().First(c => c.Id == product.CategoryId).Name</td>
                             <td><button class="btn btn-warning text-white" onclick="@(() => OpenProductForm(product))"><BiPencilSquare/></button></td>
                         </tr>
                     }
