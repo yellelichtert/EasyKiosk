@@ -31,7 +31,6 @@ public class ClientAuthController : Controller
     [Route("/Device/Login")]
     public async Task<ActionResult<DeviceLoginResponse>> LoginAsync([FromBody]DeviceLoginRequest request)
     {
-        Console.WriteLine("Login hit");
         
         var result = await _deviceService.LoginAsync(request);
         

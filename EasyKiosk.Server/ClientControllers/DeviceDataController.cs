@@ -20,11 +20,11 @@ public class DeviceDataController
     
 
     [HttpGet]
-    [Route("/Device/Data")]
-    public ActionResult<string> GetDataAsync([FromBody]DeviceType deviceType)
+    [Route("/Device/Data/{deviceType}")]
+    public ActionResult<string> GetDataAsync([FromRoute]int deviceType)
     {
 
-        if (deviceType == DeviceType.Kiosk)
+        if ((DeviceType)deviceType == DeviceType.Kiosk)
         {
             var result = _menuService.GetCategories();
             return JsonSerializer.Serialize(result);

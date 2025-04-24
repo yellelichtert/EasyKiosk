@@ -1,15 +1,20 @@
+using System;
+using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Threading.Tasks;
 using EasyKiosk.Client.Model;
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
-using Microsoft.AspNetCore.Components;
+using Microsoft.Maui.Storage;
 using DeviceType = EasyKiosk.Core.Model.Enums.DeviceType;
 
 namespace EasyKiosk.Client.Manager;
 
-public class ConnectionManager
+public class 
+    ConnectionManager
 {
     
     public bool IsInitialSetup()
@@ -82,19 +87,20 @@ public class ConnectionManager
 
 
 
-    public async Task<string> GetInitialDataAsync()
+    public async Task<T> GetInitialDataAsync<T>()
     {
+        Console.WriteLine("Fetching Data....");
+        
         var serverAddress = Preferences.Get(PreferenceNames.ServerAddress, null);
-
         var httpClient = new HttpClient();
-        var content = new StringContent(Preferences.Get(PreferenceNames.DeviceType, null), Encoding.UTF8, "application/json");
+        var content = new StringContent(Preferences.Get(PreferenceNames.DeviceType, null));
+        
         
         httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("bearer", Preferences.Get(PreferenceNames.AccessKey, null));
-
-
-        var response = await httpClient.GetAsync($"http://{serverAddress}/Device/Data");
-
+        
+        var response = await httpClient.GetAsync($"http://{serverAddress}/Device/Data/{Preferences.Get(PreferenceNames.DeviceType, -1)}");
+        
 
         if (!response.IsSuccessStatusCode)
         {
@@ -102,7 +108,10 @@ public class ConnectionManager
             Console.WriteLine(response.Content);
             throw new Exception("Handle GetDataException");
         }
+        
 
-        return await response.Content.ReadAsStringAsync();
+        var result = await JsonSerializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync());
+
+        return result!;
     }
 }

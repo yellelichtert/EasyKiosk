@@ -1,6 +1,5 @@
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text.Json;
+using System;
+
 using System.Threading.Tasks;
 using BlazorBootstrap;
 using EasyKiosk.Client.Manager;
@@ -33,10 +32,16 @@ public partial class Kiosk : ComponentBase
     
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine("Initilizing Kiosk");
         
         await base.OnInitializedAsync();
-        var dataJson = await _connectionManager.GetInitialDataAsync();
-        Categories = JsonSerializer.Deserialize<Category[]>(dataJson);
+        
+        Console.WriteLine("Fetching data...");
+
+        Categories = await _connectionManager.GetInitialDataAsync<Category[]>();
+        
+        Console.WriteLine("Done Fetching data \n Categories count: " + Categories.Length);
+        
         IsLoading = false;
     }
     

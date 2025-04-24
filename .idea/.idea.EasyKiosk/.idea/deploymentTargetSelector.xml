@@ -2,9 +2,6 @@
 <project version="4">
   <component name="deploymentTargetSelector">
     <selectionStates>
-      <SelectionState runConfigName="Easykiosk.Client">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="EasyKiosk.Client">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>

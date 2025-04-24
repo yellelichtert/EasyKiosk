@@ -1,6 +1,8 @@
 ﻿using EasyKiosk.Client.Manager;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-
+using Microsoft.Maui.Controls.Hosting;
+using Microsoft.Maui.Hosting;
 
 
 namespace EasyKiosk.Client;
