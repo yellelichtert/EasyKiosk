@@ -1,6 +1,10 @@
 namespace EasyKiosk.Core.Model.Entities;
 
-public class Order : Entity
+public class Order : TrackedEntity
 {
-    public List<Product> Products { get; set; } = new();
+    public ICollection<OrderDetail> OrderDetails { get; } = new List<OrderDetail>();
+    public Guid DeviceId { get; set; }
 }
+
+
+

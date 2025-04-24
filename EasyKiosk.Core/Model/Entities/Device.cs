@@ -2,7 +2,7 @@ using EasyKiosk.Core.Model.Enums;
 
 namespace EasyKiosk.Core.Model.Entities;
 
-public class Device : Entity
+public class Device : TrackedEntity
 {
     public string Name { get; set; }
     public DeviceType DeviceType { get; set; }

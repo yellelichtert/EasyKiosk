@@ -2,7 +2,7 @@
 
 namespace EasyKiosk.Core.Model.Entities;
 
-public class Category : Entity
+public class Category : TrackedEntity
 {
     public string Name { get; set; }
 

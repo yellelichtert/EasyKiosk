@@ -1,3 +1,4 @@
+using EasyKiosk.Core.Model;
 using EasyKiosk.Core.Model.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -22,17 +23,17 @@ public class EasyKioskDbContext : IdentityDbContext<IdentityUser>
     {
         var changedEntitites = this.ChangeTracker
             .Entries().Where(e =>
-                e.Entity is Entity && (e.State == EntityState.Modified || e.State == EntityState.Added));
+                e.Entity is TrackedEntity && (e.State == EntityState.Modified || e.State == EntityState.Added));
 
         var timeStamp = DateTime.Now;
         foreach (var entry in changedEntitites)
         {
             if (entry.State == EntityState.Added)
             {
-                ((Entity)entry.Entity).CreatedAt = timeStamp;
+                ((TrackedEntity)entry.Entity).CreatedAt = timeStamp;
             }
 
-            ((Entity)entry.Entity).UpdatedAt = timeStamp;
+            ((TrackedEntity)entry.Entity).UpdatedAt = timeStamp;
         }
         
     }
@@ -167,6 +168,31 @@ public class EasyKioskDbContext : IdentityDbContext<IdentityUser>
         
         modelBuilder.Entity<Device>()
             .Property(e => e.UpdatedAt)
+            .IsRequired();
+        
+        
+        
+        //Order entity.
+        modelBuilder.Entity<Order>()
+            .HasKey(o => o.Id);
+
+        modelBuilder.Entity<Order>()
+            .HasMany(o => o.OrderDetails)
+            .WithOne()
+            .HasForeignKey(od => od.OrderId)
+            .IsRequired();
+
+        modelBuilder.Entity<Order>()
+            .HasOne<Device>()
+            .WithMany()
+            .HasForeignKey(o => o.DeviceId)
+            .IsRequired();
+        
+        //OrderDetail entity.
+        modelBuilder.Entity<OrderDetail>()
+            .HasOne(od => od.Product)
+            .WithMany()
+            .HasForeignKey(p => p.ProductId)
             .IsRequired();
         
         modelBuilder.Seed();

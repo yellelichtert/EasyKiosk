@@ -1,6 +1,6 @@
 namespace EasyKiosk.Core.Model.Entities;
 
-public class Product : Entity
+public class Product : TrackedEntity
 {
     public string Name { get; set; }
     

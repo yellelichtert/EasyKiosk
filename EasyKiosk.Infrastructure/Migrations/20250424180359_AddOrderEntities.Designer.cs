@@ -4,6 +4,7 @@ using EasyKiosk.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EasyKiosk.Infrastructure.Migrations
 {
     [DbContext(typeof(EasyKioskDbContext))]
-    partial class EasyKioskDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250424180359_AddOrderEntities")]
+    partial class AddOrderEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,15 +96,10 @@ namespace EasyKiosk.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<Guid>("DeviceId")
-                        .HasColumnType("char(36)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DeviceId");
 
                     b.ToTable("Order");
                 });
@@ -200,7 +198,7 @@ namespace EasyKiosk.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5f62d7a0-7bed-4284-a307-b89d8a56297c",
+                            Id = "c4ad04c7-f08c-4651-9e10-bfa88174f724",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -297,17 +295,17 @@ namespace EasyKiosk.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "c7bbdd5e-6339-4892-b084-68996d2e4563",
+                            Id = "4fc00959-e40c-4a90-8254-70277f371a83",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ed48eb56-7f54-4825-950c-b9eb198fdcf8",
+                            ConcurrencyStamp = "924e0438-f01b-48fe-a94a-6ae6859d5929",
                             Email = "admin@email.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EMAIL.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHkExS12PWO1RoaphhbHZBRaJT2HssC07N+LD94d8wBTMRVmkeWBPP9Bh24VWMqChQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEASohES5N5m7RHxqOi7UgPcJihAXvy7/1ZZsZTNd8lpDn7WClKohyrb6sIsxCxA1rA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2b844bc3-913f-4eeb-9161-e785ab4491c5",
+                            SecurityStamp = "e4b21f67-5fa8-4657-bba2-83ce3b384171",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -392,15 +390,6 @@ namespace EasyKiosk.Infrastructure.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("EasyKiosk.Core.Model.Entities.Order", b =>
-                {
-                    b.HasOne("EasyKiosk.Core.Model.Entities.Device", null)
-                        .WithMany()
-                        .HasForeignKey("DeviceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("EasyKiosk.Core.Model.Entities.Product", b =>
