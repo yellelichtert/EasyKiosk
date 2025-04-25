@@ -12,10 +12,12 @@ namespace EasyKiosk.Server.ClientControllers;
 public class DeviceDataController
 {
     private IMenuService _menuService;
+    private IOrderService _orderService;
 
-    public DeviceDataController(IMenuService menuService)
+    public DeviceDataController(IMenuService menuService, IOrderService orderService)
     {
         _menuService = menuService;
+        _orderService = orderService;
     }
     
 
@@ -31,7 +33,8 @@ public class DeviceDataController
         }
         else
         {
-            throw new NotImplementedException();
+            var result = _orderService.GetOpenOrders();
+            return JsonSerializer.Serialize(result);
         }
         
     }

@@ -103,7 +103,7 @@ namespace EasyKiosk.Infrastructure.Migrations
 
                     b.HasIndex("DeviceId");
 
-                    b.ToTable("Order");
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("EasyKiosk.Core.Model.Entities.Product", b =>
@@ -200,7 +200,7 @@ namespace EasyKiosk.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "5f62d7a0-7bed-4284-a307-b89d8a56297c",
+                            Id = "ca969bc0-4ddd-4680-b0fb-a353c57c8752",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -297,17 +297,17 @@ namespace EasyKiosk.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "c7bbdd5e-6339-4892-b084-68996d2e4563",
+                            Id = "762c4163-190d-4f7a-b6da-79fe7f71e552",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ed48eb56-7f54-4825-950c-b9eb198fdcf8",
+                            ConcurrencyStamp = "2acfcbd5-3d87-4829-895e-1d373082a5cc",
                             Email = "admin@email.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EMAIL.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHkExS12PWO1RoaphhbHZBRaJT2HssC07N+LD94d8wBTMRVmkeWBPP9Bh24VWMqChQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENPbb1Z7vx+iR3nyxAR/nfMaT38C5EY3yD7MfleFwKLTLHMXdtVITgu1I/cs6PgiOg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "2b844bc3-913f-4eeb-9161-e785ab4491c5",
+                            SecurityStamp = "58109213-f065-4f3b-8879-eca6157477f1",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

@@ -10,5 +10,13 @@ public class OrderDetail : Entity
     public int Qty { get; set; } = 1;
     public decimal PayedPrice { get; }
 
-    public required Product Product { get; set; }
+    public Product Product { get; }
+
+    internal OrderDetail(){}
+    internal OrderDetail(Product product)
+    {
+        Product = product;
+        PayedPrice = product.Price;
+    }
+    
 }

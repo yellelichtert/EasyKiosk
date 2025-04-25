@@ -2,9 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using BlazorBootstrap;
+using EasyKiosk.Client.HubMethods;
 using EasyKiosk.Client.Manager;
+using EasyKiosk.Core.Model;
 using EasyKiosk.Core.Model.Entities;
+using ErrorOr;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.SignalR.Client;
 using Button = BlazorBootstrap.Button;
 
 namespace EasyKiosk.Client.UI.Pages;
@@ -24,6 +28,7 @@ public partial class Kiosk : ComponentBase
     private Offcanvas _orderCanvas = default!;
     private Button _orderButton = default!;
 
+    private HubConnection _hubConnection;
 
     public Kiosk(ConnectionManager connectionManager)
     {
@@ -41,6 +46,8 @@ public partial class Kiosk : ComponentBase
         LoadingMessage = "Fetching data...";
         var categories = await _connectionManager.GetInitialDataAsync<List<Category>>();
 
+        Console.WriteLine("Done fetching data");
+        
         var allProducts = new List<Product>();
         foreach (var category in categories)
         {
@@ -56,20 +63,40 @@ public partial class Kiosk : ComponentBase
         categories.Insert(0, generalCategory);
         Categories = categories.ToArray();
 
-        SelectedCategory = categories[0];
+        Console.WriteLine("Setting selected categor");
+        
+        SelectedCategory = Categories[0];
+
+        
+        Console.WriteLine("Done setting category");
+        
+        LoadingMessage = "Connecting to hub...";
+        
+        _hubConnection = await _connectionManager.GetHubConnection();
+        
+        _hubConnection.Reconnecting += (error) =>
+        {
+            LoadingMessage = "Connecting to hub...";
+            IsLoading = true;
+            return Task.CompletedTask;
+        };
+        
+        _hubConnection.Reconnected += (error) =>
+        {
+            IsLoading = false;
+            return Task.CompletedTask;
+        };
         
         IsLoading = false;
     }
     
     
-   
-    
     private async Task SendOrderAsync()
     {
         _orderButton.ShowLoading("Sending order");
 
-        await Task.Delay(5000);
-
+        Order = await KioskHubController.SendOrderAsync(Order! ,_hubConnection);
+        
         _orderButton.HideLoading();
     }
        

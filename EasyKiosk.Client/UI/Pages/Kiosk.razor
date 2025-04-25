@@ -53,16 +53,16 @@ else if (Categories is not null)
                         
                         <div class="d-flex">
 
-                            @if (Order.Products.Contains(product))
+                            @if (Order.GetOrderDetail(product) is not null)
                             {
-                                <Button Color="ButtonColor.Primary" @onclick="(() => { Order.Products.Remove(product);})">
+                                <Button Color="ButtonColor.Primary" @onclick="(() => { Order.RemoveProduct(product);})">
                                     <Icon Name="IconName.DashLg"/>
                                 </Button>
                             
-                                <p>@Order.Products.Count(p => p.Id == product.Id)</p>
+                                <p>@Order.GetOrderDetail(product)!.Qty</p>
                             }
                             
-                            <Button Color="ButtonColor.Primary" @onclick="(() => { Order.Products.Add(product);})">
+                            <Button Color="ButtonColor.Primary" @onclick="(() => { Order.AddProduct(product);})">
                                 <Icon Name="IconName.PlusLg"/>
                             </Button>
                         </div>
@@ -84,45 +84,74 @@ else if (Categories is not null)
     
     
     <Offcanvas @ref="_orderCanvas" Title="Order" Placement="Placement.Bottom" Class="rounded-3 d-flex flex-column h-75">
-
+        
+        
+        
         <BodyTemplate>
             <Card Color="CardColor.Light" Class="h-75">
 
-                <CardHeader>
-                    Products
-                </CardHeader>
-                
-                
-                <CardBody Class="overflow-scroll">
-                    @foreach (var product in Order.Products.Distinct())
-                    {
-                        <div class="d-flex justify-content-between">
+                @if (Order.Id == Guid.Empty)
+                {
+                    <CardHeader>
+                        Products
+                    </CardHeader>
+
+
+                    <CardBody Class="overflow-scroll">
+                        @foreach (var orderDetail in Order.OrderDetails)
+                        {
+                            <div class="d-flex justify-content-between">
+
+                                <div class="d-flex">
+                                    <p class="h3">@orderDetail.Qty x</p>
+                                    <h3>@orderDetail.Product.Name</h3>
+                                </div>
+
+                                <div class="d-flex">
+
+                                    <Button Color="ButtonColor.Primary" @onclick="(() => { orderDetail.Qty--; })">
+                                        <Icon Name="IconName.DashLg"/>
+                                    </Button>
+
+                                    <p class="h3">@orderDetail.Qty</p>
+
+                                    <Button Color="ButtonColor.Primary" @onclick="(() => { orderDetail.Qty++; })">
+                                        <Icon Name="IconName.PlusLg"/>
+                                    </Button>
+                                </div>
+
+                            </div>
+                        }
+                    </CardBody>
+                    
+                    
+                    <Button @ref="_orderButton" @onclick="SendOrderAsync" Color="ButtonColor.Primary">Order</Button>
+                }
+                else
+                {
+                    <CardHeader>
+                        <h5>Order Number: <span class="text-bold">@Order.OrderNumber</span></h5> 
+                    </CardHeader>
+
+
+                    <CardBody Class="overflow-scroll">
+
+                        <div class="d-flex flex-column flex-grow-1 justify-content-center aling-items-center"> 
+                            <Spinner Size="SpinnerSize.ExtraLarge"/>
                             
-                            <div class="d-flex">
-                                <p class="h3">@Order.Products.Count(p => p.Id == product.Id) x</p>
-                                <h3>@product.Name</h3>
-                            </div>
-
-                            <div class="d-flex">
-
-                                <Button Color="ButtonColor.Primary" @onclick="(() => { Order.Products.Remove(product); })">
-                                    <Icon Name="IconName.DashLg"/>
-                                </Button>
-
-                                <p class="h3">@Order.Products.Count(p => p.Id == product.Id)</p>
-
-                                <Button Color="ButtonColor.Primary" @onclick="(() => { Order.Products.Add(product); })">
-                                    <Icon Name="IconName.PlusLg"/>
-                                </Button>
-                            </div>
-
+                            
+                            <button></button>
+                            
+                            
                         </div>
-                    }
-                </CardBody>
+                            
+                    </CardBody>
+                    
+                    
+                    <button onclick="@(() => { Order = null; })">GOBACK</button>
+                }
+               
             </Card>
-
-            
-            <Button @ref="_orderButton" @onclick="SendOrderAsync" Color="ButtonColor.Primary">Order</Button>
             
         </BodyTemplate>
     </Offcanvas>

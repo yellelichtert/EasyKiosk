@@ -1,12 +1,16 @@
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using EasyKiosk.Client.HubMethods;
 using EasyKiosk.Client.Model;
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
+using ErrorOr;
+using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Maui.Storage;
 using DeviceType = EasyKiosk.Core.Model.Enums.DeviceType;
 
@@ -64,11 +68,10 @@ public class
 
         var httpClient = new HttpClient();
         var result = await httpClient.PostAsync("http://"+ serverAddress + endPoint, content);
-        
 
         if (!result.IsSuccessStatusCode)
         {
-            throw new Exception("Handle Login errors!");
+            throw new NotImplementedException();
         }
 
         
@@ -77,29 +80,23 @@ public class
 
         Preferences.Set(PreferenceNames.AccessKey, response.Token);
         Preferences.Set(PreferenceNames.RefreshKey, response.Refresh);
-
+        
         
         return (DeviceType)Preferences.Get(PreferenceNames.DeviceType, -1);
     }
 
-
-
-
-
+    
     public async Task<T> GetInitialDataAsync<T>()
     {
-        Console.WriteLine("Fetching Data....");
         
         var serverAddress = Preferences.Get(PreferenceNames.ServerAddress, null);
         var httpClient = new HttpClient();
-        var content = new StringContent(Preferences.Get(PreferenceNames.DeviceType, null));
         
         
         httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("bearer", Preferences.Get(PreferenceNames.AccessKey, null));
         
         var response = await httpClient.GetAsync($"http://{serverAddress}/Device/Data/{Preferences.Get(PreferenceNames.DeviceType, -1)}");
-        
 
         if (!response.IsSuccessStatusCode)
         {
@@ -112,5 +109,46 @@ public class
         var result = await JsonSerializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync());
 
         return result!;
+    }
+
+
+    public async Task<HubConnection> GetHubConnection()
+    {
+        var connection = new HubConnectionBuilder()
+            .WithUrl($"http://{Preferences.Get(PreferenceNames.ServerAddress, null)}/Device/Hub", options =>
+            {
+                options.Headers.Add("Authorization", $"Bearer {Preferences.Get(PreferenceNames.AccessKey, "")}");
+            })
+            .WithAutomaticReconnect()
+            .Build();
+
+
+        try
+        {
+            await connection.StartAsync();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+        return connection;
+    }
+
+
+
+    private Error HandleErrors(HttpStatusCode statusCode)
+    {
+        if (statusCode == HttpStatusCode.Unauthorized)
+        {
+            return Error.Unauthorized();
+        }
+
+        if (statusCode == HttpStatusCode.InternalServerError)
+        {
+            return Error.Failure("Internal server error....");
+        }
+
+        return Error.Unexpected();
     }
 }

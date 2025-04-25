@@ -1,4 +1,60 @@
 @page "/Receiver"
+@using System.Text.Json
+@using EasyKiosk.Client.Manager
+@using EasyKiosk.Core.Model
+@using Microsoft.AspNetCore.SignalR.Client
+
+<h1>TEMP RECEIVER CLIENT</h1>
+
+@if (Orders is not null)
+{
+    
+    @foreach (var order in Orders)
+    {
+        <hr/>
+        <h5>Order: @order.OrderNumber</h5>
+        @foreach (var detail in order.OrderDetails)
+        {
+            <p>   <span>@detail.Qty</span>x - @detail.Product.Name</p>
+        }
+        <hr/>
+    }
+    
+}
 
 
-<h3>Receiver</h3>
+@code
+{
+    private ConnectionManager _connectionManager;
+    private HubConnection _connection;
+
+    [Parameter]public List<Order>? Orders { get; set; }
+    
+    public Receiver(ConnectionManager connectionManager)
+    {
+        _connectionManager = connectionManager;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        
+        Orders = await _connectionManager.GetInitialDataAsync<List<Order>>();
+        _connection = await _connectionManager.GetHubConnection();
+
+        
+        Console.WriteLine("Hub connection state => " + _connection.State);
+
+        _connection.On<string>("ReceiveOrder", (orderJson) =>
+        {
+            Console.WriteLine("Order Received");
+            Console.WriteLine("OrderJson => " + orderJson);
+            
+            Order order = JsonSerializer.Deserialize<Order>(orderJson);
+            Orders.Add(order);
+            InvokeAsync(StateHasChanged);
+        });
+        
+    }
+    
+}

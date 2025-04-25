@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace EasyKiosk.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddOrderEntities : Migration
+    public partial class DbOrderUpdate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,16 +22,23 @@ namespace EasyKiosk.Infrastructure.Migrations
                 keyValue: "fa09540a-cb80-4305-bd25-3b3f80ea9dc2");
 
             migrationBuilder.CreateTable(
-                name: "Order",
+                name: "Orders",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
+                    DeviceId = table.Column<Guid>(type: "char(36)", nullable: false, collation: "ascii_general_ci"),
                     CreatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime(6)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Order", x => x.Id);
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_Devices_DeviceId",
+                        column: x => x.DeviceId,
+                        principalTable: "Devices",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 })
                 .Annotation("MySql:CharSet", "utf8mb4");
 
@@ -48,9 +55,9 @@ namespace EasyKiosk.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_OrderDetail", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderDetail_Order_OrderId",
+                        name: "FK_OrderDetail_Orders_OrderId",
                         column: x => x.OrderId,
-                        principalTable: "Order",
+                        principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -65,12 +72,12 @@ namespace EasyKiosk.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "c4ad04c7-f08c-4651-9e10-bfa88174f724", null, "Admin", "ADMIN" });
+                values: new object[] { "ca969bc0-4ddd-4680-b0fb-a353c57c8752", null, "Admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "4fc00959-e40c-4a90-8254-70277f371a83", 0, "924e0438-f01b-48fe-a94a-6ae6859d5929", "admin@email.com", true, false, null, "ADMIN@EMAIL.COM", "ADMIN", "AQAAAAIAAYagAAAAEASohES5N5m7RHxqOi7UgPcJihAXvy7/1ZZsZTNd8lpDn7WClKohyrb6sIsxCxA1rA==", null, false, "e4b21f67-5fa8-4657-bba2-83ce3b384171", false, "admin" });
+                values: new object[] { "762c4163-190d-4f7a-b6da-79fe7f71e552", 0, "2acfcbd5-3d87-4829-895e-1d373082a5cc", "admin@email.com", true, false, null, "ADMIN@EMAIL.COM", "ADMIN", "AQAAAAIAAYagAAAAENPbb1Z7vx+iR3nyxAR/nfMaT38C5EY3yD7MfleFwKLTLHMXdtVITgu1I/cs6PgiOg==", null, false, "58109213-f065-4f3b-8879-eca6157477f1", false, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_OrderId",
@@ -81,6 +88,11 @@ namespace EasyKiosk.Infrastructure.Migrations
                 name: "IX_OrderDetail_ProductId",
                 table: "OrderDetail",
                 column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_DeviceId",
+                table: "Orders",
+                column: "DeviceId");
         }
 
         /// <inheritdoc />
@@ -90,17 +102,17 @@ namespace EasyKiosk.Infrastructure.Migrations
                 name: "OrderDetail");
 
             migrationBuilder.DropTable(
-                name: "Order");
+                name: "Orders");
 
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "c4ad04c7-f08c-4651-9e10-bfa88174f724");
+                keyValue: "ca969bc0-4ddd-4680-b0fb-a353c57c8752");
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "4fc00959-e40c-4a90-8254-70277f371a83");
+                keyValue: "762c4163-190d-4f7a-b6da-79fe7f71e552");
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",

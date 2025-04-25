@@ -2,6 +2,7 @@
 @using EasyKiosk.Client.Manager
 @using EasyKiosk.Core.Model.Enums
 
+
 @page "/"
 
 
@@ -84,7 +85,9 @@
             }
             else
             {
-                <h3>@_errorMessage</h3>
+                <h5>Something went wrong!</h5>
+                <p class="muted">@_errorMessage</p>          
+                <p>@_errorCountDown</p>
             }
             
             
@@ -105,10 +108,13 @@
 
     private bool _isInitialSetup;
     private bool _isRegistering;
+
     private bool _hasErrors;
-    private string _errorMessage;
+    private string? _errorMessage;
+    private int _errorCountDown;
 
 
+    
     protected override async Task OnInitializedAsync()
     {
         try
@@ -149,9 +155,10 @@
 
     private async Task HandleLogin()
     {
-        var deviceType = await ConnectionManager.LoginAsync();
-
-        if (deviceType == DeviceType.Kiosk)
+        Console.WriteLine("Handeling login");
+        var result = await ConnectionManager.LoginAsync();
+        
+        if (result == DeviceType.Kiosk)
         {
             NavigationManager.NavigateTo("/Kiosk");
         }
@@ -160,7 +167,7 @@
             NavigationManager.NavigateTo("/Receiver");
         }
     }
-
+    
 
 
     private sealed class Input

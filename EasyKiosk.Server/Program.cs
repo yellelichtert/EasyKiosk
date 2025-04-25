@@ -23,10 +23,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 
 //Services
 builder.Services.AddTransient<IMenuService, MenuService>();
 builder.Services.AddTransient<IDeviceService, DeviceService>();
+builder.Services.AddTransient<IOrderService, OrderService>();
 
 
 //Options
@@ -129,7 +131,7 @@ else
     app.UseSwaggerUI();
 }
 
-app.MapHub<DeviceHub>("/Hub");
+app.MapHub<DeviceHub>("/Device/Hub");
     
 
 app.UseCors(x => x
