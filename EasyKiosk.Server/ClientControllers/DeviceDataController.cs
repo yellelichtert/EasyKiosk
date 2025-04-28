@@ -1,5 +1,8 @@
 using System.Text.Json;
+using EasyKiosk.Core.Model;
+using EasyKiosk.Core.Model.DTO;
 using EasyKiosk.Core.Model.Enums;
+using EasyKiosk.Core.Model.Responses;
 using EasyKiosk.Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -11,34 +14,40 @@ namespace EasyKiosk.Server.ClientControllers;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class DeviceDataController
 {
-    private IMenuService _menuService;
-    private IOrderService _orderService;
-
-    public DeviceDataController(IMenuService menuService, IOrderService orderService)
-    {
-        _menuService = menuService;
-        _orderService = orderService;
-    }
+    private IReceiverService _receiverService;
+    private IKioskService _kioskService;
     
+    public DeviceDataController(IReceiverService receiverService, IKioskService kioskService)
+    {
+        _receiverService = receiverService;
+        _kioskService = kioskService;
+    }
+
 
     [HttpGet]
-    [Route("/Device/Data/{deviceType}")]
-    public ActionResult<string> GetDataAsync([FromRoute]int deviceType)
+    [Route("Device/Data/Receiver")]
+    public async Task<ActionResult<ReceiverDataResponse>> GetReceiverDataAsync()
     {
+        var openOrders = await _receiverService.GetOpenOrdersAsync();
 
-        if ((DeviceType)deviceType == DeviceType.Kiosk)
+        return new ReceiverDataResponse()
         {
-            var result = _menuService.GetCategories();
-            return JsonSerializer.Serialize(result);
-        }
-        else
-        {
-            var result = _orderService.GetOpenOrders();
-            return JsonSerializer.Serialize(result);
-        }
-        
+            OpenOrders = openOrders
+        };
     }
 
 
 
+    [HttpGet]
+    [Route("Device/Data/Kiosk")]
+    public async Task<ActionResult<KioskDataResponse>> GetKioskDataAsync()
+    {
+        var menuData = await _kioskService.GetMenuDataAsync();
+
+        return new KioskDataResponse()
+        {
+            Categories = menuData.categories,
+            Products = menuData.products
+        };
+    }
 }

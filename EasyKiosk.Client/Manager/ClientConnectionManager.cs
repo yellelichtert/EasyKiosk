@@ -12,6 +12,7 @@ using EasyKiosk.Core.Model.Responses;
 using ErrorOr;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Maui.Storage;
+using Device = EasyKiosk.Core.Model.Entities.Device;
 using DeviceType = EasyKiosk.Core.Model.Enums.DeviceType;
 
 namespace EasyKiosk.Client.Manager;
@@ -95,9 +96,15 @@ public class
         
         httpClient.DefaultRequestHeaders.Authorization =
             new AuthenticationHeaderValue("bearer", Preferences.Get(PreferenceNames.AccessKey, null));
-        
-        var response = await httpClient.GetAsync($"http://{serverAddress}/Device/Data/{Preferences.Get(PreferenceNames.DeviceType, -1)}");
 
+
+        var endpointExtension = Preferences.Get(PreferenceNames.DeviceType, -1) == (int)DeviceType.Kiosk
+            ? "Kiosk"
+            : "Receiver";
+        
+        var response = await httpClient.GetAsync($"http://{serverAddress}/Device/Data/{endpointExtension}");
+
+        
         if (!response.IsSuccessStatusCode)
         {
             Console.WriteLine(response.StatusCode);
@@ -105,9 +112,12 @@ public class
             throw new Exception("Handle GetDataException");
         }
         
-
+        Console.WriteLine("Json: " + await response.Content.ReadAsStringAsync());
+        
         var result = await JsonSerializer.DeserializeAsync<T>(await response.Content.ReadAsStreamAsync());
-
+        
+        Console.WriteLine("Serialization OK");
+        
         return result!;
     }
 

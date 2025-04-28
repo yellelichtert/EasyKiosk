@@ -1,4 +1,5 @@
-namespace EasyKiosk.Core.Model.Entities;
+
+namespace EasyKiosk.Core.Model;
 
 public class Product : TrackedEntity
 {

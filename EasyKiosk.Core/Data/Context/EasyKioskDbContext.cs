@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyKiosk.Infrastructure.Context;
+namespace EasyKiosk.Core.Context;
 
 public class EasyKioskDbContext : IdentityDbContext<IdentityUser>
 {
@@ -16,8 +16,7 @@ public class EasyKioskDbContext : IdentityDbContext<IdentityUser>
     public virtual DbSet<Category> Categories { get; set; }
     public virtual DbSet<Product> Products { get; set; }
     public virtual DbSet<Device> Devices { get; set; }
-    public virtual DbSet<Order> Orders { get; set; }
-
+    internal virtual DbSet<Order> Orders { get; set; }
 
     
     private void SetTimeStamps()

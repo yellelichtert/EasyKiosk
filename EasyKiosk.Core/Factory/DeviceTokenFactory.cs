@@ -1,13 +1,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using EasyKiosk.Core.Factory;
 using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Model.Options;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace EasyKiosk.Infrastructure.Factory;
+namespace EasyKiosk.Core.Factory;
 
 public class DeviceTokenFactory : ITokenFactory<Device>
 {

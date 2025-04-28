@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO.Pipelines;
+using EasyKiosk.Core.Model;
 using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Repositories;
 using EasyKiosk.Core.Services;

@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace EasyKiosk.Infrastructure.Migrations
+namespace EasyKiosk.Core.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class DbOrderUpdate : Migration
+    public partial class OrderEntity : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -72,12 +72,12 @@ namespace EasyKiosk.Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "ca969bc0-4ddd-4680-b0fb-a353c57c8752", null, "Admin", "ADMIN" });
+                values: new object[] { "2dafda20-06e5-4e73-b527-fac13d5b6c48", null, "Admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "762c4163-190d-4f7a-b6da-79fe7f71e552", 0, "2acfcbd5-3d87-4829-895e-1d373082a5cc", "admin@email.com", true, false, null, "ADMIN@EMAIL.COM", "ADMIN", "AQAAAAIAAYagAAAAENPbb1Z7vx+iR3nyxAR/nfMaT38C5EY3yD7MfleFwKLTLHMXdtVITgu1I/cs6PgiOg==", null, false, "58109213-f065-4f3b-8879-eca6157477f1", false, "admin" });
+                values: new object[] { "329db3e9-63ab-4781-af74-d5ab820a978c", 0, "b6db6f5f-c1cf-41ec-8aca-c217cbf905e9", "admin@email.com", true, false, null, "ADMIN@EMAIL.COM", "ADMIN", "AQAAAAIAAYagAAAAEEbMFP+ywhixhzjP6QlPxK+UB1D3eqgCDSG42Fs9lYIQGQWuZfTWI5IQB7tawq2pkw==", null, false, "c0af124f-a7d4-4115-b7e5-c372f5c29a70", false, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_OrderId",
@@ -107,12 +107,12 @@ namespace EasyKiosk.Infrastructure.Migrations
             migrationBuilder.DeleteData(
                 table: "AspNetRoles",
                 keyColumn: "Id",
-                keyValue: "ca969bc0-4ddd-4680-b0fb-a353c57c8752");
+                keyValue: "2dafda20-06e5-4e73-b527-fac13d5b6c48");
 
             migrationBuilder.DeleteData(
                 table: "AspNetUsers",
                 keyColumn: "Id",
-                keyValue: "762c4163-190d-4f7a-b6da-79fe7f71e552");
+                keyValue: "329db3e9-63ab-4781-af74-d5ab820a978c");
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",

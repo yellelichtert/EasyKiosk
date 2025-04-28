@@ -4,23 +4,29 @@
 @using EasyKiosk.Core.Model
 @using Microsoft.AspNetCore.SignalR.Client
 
-<h1>TEMP RECEIVER CLIENT</h1>
-
-@if (Orders is not null)
-{
+<div class="d-flex flex-grow-1 bg-dark">
     
-    @foreach (var order in Orders)
+    @if (Orders is not null && _products is not null)
     {
-        <hr/>
-        <h5>Order: @order.OrderNumber</h5>
-        @foreach (var detail in order.OrderDetails)
-        {
-            <p>   <span>@detail.Qty</span>x - @detail.Product.Name</p>
-        }
-        <hr/>
+        <div class="row">
+            @for (int i = 0, c = 0; i < Orders.Count; i++, c++)
+            {
+                if (c > _colorCodes.Length-1)
+                    c = 0;
+
+                
+                <div class="col-6" style="border: 0.3em solid @_colorCodes[c]; color: @_colorCodes[c]">
+                    <h5>Order: @Orders[i].OrderNumber</h5>
+                    @foreach (var detail in Orders[i].OrderDetails)
+                    {
+                        <p class="text-white"><span>@detail.Qty</span>x - @_products.FirstOrDefault(p => p.Id == detail.ProductId).Name</p>
+                    }
+                </div>
+            }
+        </div>
     }
-    
-}
+</div>
+
 
 
 @code
@@ -28,7 +34,13 @@
     private ConnectionManager _connectionManager;
     private HubConnection _connection;
 
+    private string[] _colorCodes = ["#ff0000;", "#2bff00;", "#00f7ff;"];
+    
+    
+    
     [Parameter]public List<Order>? Orders { get; set; }
+
+    private Product[]? _products;
     
     public Receiver(ConnectionManager connectionManager)
     {
@@ -39,9 +51,17 @@
     {
         await base.OnInitializedAsync();
         
-        Orders = await _connectionManager.GetInitialDataAsync<List<Order>>();
-        _connection = await _connectionManager.GetHubConnection();
+        var initialData = await _connectionManager.GetInitialDataAsync<(List<Order>, Product[])>();
 
+        Console.WriteLine("Past intial");
+        
+        Orders = initialData.Item1;
+  
+        
+        Console.WriteLine("ProductCount: " + _products.Length);
+        
+        _connection = await _connectionManager.GetHubConnection();
+        
         
         Console.WriteLine("Hub connection state => " + _connection.State);
 
@@ -54,7 +74,9 @@
             Orders.Add(order);
             InvokeAsync(StateHasChanged);
         });
-        
+
+
+        Console.WriteLine("Order count = " + Orders.Count);
     }
     
 }

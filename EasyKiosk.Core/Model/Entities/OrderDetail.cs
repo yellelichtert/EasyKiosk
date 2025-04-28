@@ -1,22 +1,22 @@
-using EasyKiosk.Core.Model.Entities;
 
 namespace EasyKiosk.Core.Model;
 
-public class OrderDetail : Entity
+internal class OrderDetail : Entity
 {
-    public Guid OrderId { get; set; }
-    public Guid ProductId { get; set; }
+    public Guid OrderId { get; init; }
+    public Guid ProductId { get; init; }
     
     public int Qty { get; set; } = 1;
-    public decimal PayedPrice { get; }
+    public decimal PayedPrice { get; init; }
 
-    public Product Product { get; }
+    public Product Product { get; init; }
 
-    internal OrderDetail(){}
+    public OrderDetail(){}
     internal OrderDetail(Product product)
     {
-        Product = product;
+        ProductId = product.Id;
         PayedPrice = product.Price;
+        Product = product;
     }
     
 }

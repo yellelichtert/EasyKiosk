@@ -15,15 +15,29 @@ else if (Order is null)
         Tap to Order....
     </div>
 }
-else if (Categories is not null)
+else if (OrderResponse is not null)
+{
+    <div class="d-flex flex-column flex-grow-1 justify-content-around align-items-center">
+            
+        <div>
+            <h1>Your order has been send to the kitchen!</h1>
+            <p class="lead text-muted">when the order is done, you'll be able to pick up at the pick-up desk.</p>
+        </div>
+        
+        <h1>OrderNumber: <span class="font-weight-black">@OrderResponse.OrderNumber</span></h1>
+        
+        
+    </div>    
+}
+else if (_categories is not null)
 {
     
     @* Categories *@
     <section id="Categories" class="row h-25">
         <div class="container-fluid d-flex overflow-scroll py-5">
-            @foreach (var category in Categories)
+            @foreach (var category in _categories)
             {
-                <button @onclick="() => { SelectedCategory = category; }" class="btn bg-white col-3 h-100 mx-3 shadow rounded @(category.Img != null ? "d-flex flex-column justify-content-center align-items-center" : "")">
+                <button @onclick="() => { _selectedCategory = category.Id; }" class="btn bg-white col-3 h-100 mx-3 shadow rounded @(category.Img != null ? "d-flex flex-column justify-content-center align-items-center" : "")">
                     
                     @if (category.Img is not null)
                     {
@@ -42,7 +56,7 @@ else if (Categories is not null)
 
     @* Products  *@
     <section id="Products" class="row flex-grow-1 justify-content-start align-content-start px-3 overflow-scroll">
-        @foreach (var product in SelectedCategory.Products)
+        @foreach (var product in GetVisibleProducts())
         {
             <div class="col-4 d-flex p-3" style="height: 40%">
                 
@@ -70,16 +84,16 @@ else if (Categories is not null)
 
                         <div class="d-flex">
 
-                            @if (Order.GetOrderDetail(product) is not null)
+                            @if (Order.ContainsKey(product.Id))
                             {
-                                <Button Size="ButtonSize.Small" Color="ButtonColor.Primary" @onclick="(() => { Order.RemoveProduct(product); })">
+                                <Button Size="ButtonSize.Small" Color="ButtonColor.Primary" @onclick="(() => {RemoveProduct(product.Id);})">
                                     <Icon Name="IconName.DashLg"/>
                                 </Button>
-
-                                <p class="mx-1 fs-6">@Order.GetOrderDetail(product)!.Qty</p>
+                            
+                                <p class="mx-1 fs-6">@Order[product.Id]</p>
                             }
 
-                            <Button Size="ButtonSize.Small" Color="ButtonColor.Primary" @onclick="(() => { Order.AddProduct(product); })">
+                            <Button Size="ButtonSize.Small" Color="ButtonColor.Primary" @onclick="(() => {AddProduct(product.Id);})">
                                 <Icon Name="IconName.PlusLg"/>
                             </Button>
                         </div>
@@ -93,7 +107,7 @@ else if (Categories is not null)
     </section>
 
 
-    if (Order.OrderDetails.Count > 0)
+    if (Order.Any())
     {
         <button  @onclick="(() => _orderCanvas.ShowAsync())"  class="btn bg-primary position-absolute rounded-circle text-white bottom-0 text-white p-4 end-0 mx-5">
         <BiBasketFill/>
@@ -107,29 +121,31 @@ else if (Categories is not null)
                 
                 
                 <div class="flex-grow-1 overflow-scroll">
-                    @foreach (var detail in Order.OrderDetails)
+                    @foreach (var item in Order)
                     {
+                        var product = GetProduct(item.Key);
+                                                    
                         <div class="d-flex">
 
                             <div class="d-flex justify-content-between align-items-center" style="width: 5rem;">
-                                <img src="@detail.Product.Img" alt="Product image" class="img-fluid object-fit-cover rounded-circle">
+                                <img src="@product.Img" alt="Product image" class="img-fluid object-fit-cover rounded-circle">
                             </div>
                 
                             
                             <div class="d-flex flex-grow-1 px-2 align-items-center justify-content-between">
-                                <p class="fs-2 font-weight-bold text-truncate align-middle">@detail.Product.Name</p>
-                                <p class="fs-4 fst-italic text-muted">@detail.Qty&#64&euro;@detail.PayedPrice</p>
+                                <p class="fs-2 font-weight-bold text-truncate align-middle">@product.Name</p>
+                                <p class="fs-4 fst-italic text-muted">@item.Value&#64&euro;@product.Price</p>
                             </div>
                 
                 
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="m-1">
-                                    <Button Color="ButtonColor.Primary">
+                                    <Button Color="ButtonColor.Primary" @onclick="(() => {RemoveProduct(product.Id);})">
                                         <Icon Name="IconName.DashLg"/>
                                     </Button>
                                 </div>
                                 <div class="m-1">
-                                    <Button Color="ButtonColor.Primary">
+                                    <Button Color="ButtonColor.Primary" @onclick="(() => {AddProduct(product.Id);})">
                                         <Icon Name="IconName.PlusLg"/>
                                     </Button>
                                 </div>
@@ -143,7 +159,7 @@ else if (Categories is not null)
                     }
                 </div>
 
-                <div class="mx-3">
+                <div class="my-3">
 
                     <div class="d-flex justify-content-between fs-2 my-1">
                         <p class="fst-italic">Tax:</p>
@@ -153,17 +169,16 @@ else if (Categories is not null)
 
                     <div class="d-flex justify-content-between fs-2 my-1">
                         <p class="fst-italic">Total:</p>
-                        <p class="font-weight-bold">&euro;@Order.FullPrice</p>
+                        <p class="font-weight-bold">&euro;@GetFullPrice()</p>
                     </div>
 
                 </div>
 
 
                 <div class="d-flex justify-content-around">
-                    <Button Size="ButtonSize.ExtraLarge" Color="ButtonColor.Primary">Order</Button>
+                    <Button @onclick="SendOrderAsync" Size="ButtonSize.ExtraLarge" Color="ButtonColor.Primary">Order</Button>
                 </div>
             </div>
-            
         </BodyTemplate>
     </Offcanvas>
     

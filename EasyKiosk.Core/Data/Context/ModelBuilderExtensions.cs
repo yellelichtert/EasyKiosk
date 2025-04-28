@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace EasyKiosk.Infrastructure.Context;
+namespace EasyKiosk.Core.Context;
 
 public static class ModelBuilderExtensions
 {

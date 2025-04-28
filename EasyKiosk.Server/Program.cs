@@ -1,11 +1,10 @@
 using System.Text;
+using EasyKiosk.Core.Context;
 using EasyKiosk.Core.Factory;
 using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Repositories;
 using EasyKiosk.Core.Services;
 using EasyKiosk.Infrastructure.Auth;
-using EasyKiosk.Infrastructure.Context;
-using EasyKiosk.Infrastructure.Factory;
 using EasyKiosk.Infrastructure.Repositories;
 using EasyKiosk.Server.ClientControllers;
 using EasyKiosk.Server.Manager;
@@ -23,12 +22,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+
 
 //Services
 builder.Services.AddTransient<IMenuService, MenuService>();
 builder.Services.AddTransient<IDeviceService, DeviceService>();
-builder.Services.AddTransient<IOrderService, OrderService>();
+builder.Services.AddTransient<IKioskService, KioskService>();
+builder.Services.AddTransient<IReceiverService, ReceiverService>();
 
 
 //Options
@@ -95,7 +95,11 @@ builder.Services.AddIdentityCore<IdentityUser>()
 
 
 //Other
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+    options.MaximumReceiveMessageSize = Int64.MaxValue;
+});
 
 
 builder.Services.AddRazorComponents()

@@ -4,8 +4,12 @@ using System.Threading.Tasks;
 using BlazorBootstrap;
 using EasyKiosk.Client.HubMethods;
 using EasyKiosk.Client.Manager;
+using EasyKiosk.Client.Model;
 using EasyKiosk.Core.Model;
+using EasyKiosk.Core.Model.DTO;
 using EasyKiosk.Core.Model.Entities;
+using EasyKiosk.Core.Model.Requests;
+using EasyKiosk.Core.Model.Responses;
 using ErrorOr;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -18,12 +22,15 @@ public partial class Kiosk : ComponentBase
     private ConnectionManager _connectionManager;
     
     [Parameter] public bool IsLoading { get; set; }
-    [Parameter] public string LoadingMessage { get; set; }    
+    [Parameter] public string LoadingMessage { get; set; }
+    [Parameter] public Dictionary<Guid, int> Order { get; set;}
+    [Parameter] public OrderResponse? OrderResponse { get; set; }
     
-    [Parameter] public Category[]? Categories { get; set; }
-    [Parameter] public Category? SelectedCategory { get; set; }
-
-    [Parameter] public Order? Order { get; set; }
+    
+    private CategoryDto[]? _categories;
+    private ProductDto[]? _products;
+    private Guid? _selectedCategory = Guid.Empty;
+    
     
     private Offcanvas _orderCanvas = default!;
     private Button _orderButton = default!;
@@ -41,32 +48,16 @@ public partial class Kiosk : ComponentBase
     {
         IsLoading = true;
         
+        
         await base.OnInitializedAsync();
         
         LoadingMessage = "Fetching data...";
-        var categories = await _connectionManager.GetInitialDataAsync<List<Category>>();
-
-        Console.WriteLine("Done fetching data");
         
-        var allProducts = new List<Product>();
-        foreach (var category in categories)
-        {
-            allProducts.AddRange(category.Products);
-        }
-
-        var generalCategory = new Category()
-        {
-            Name = "All",
-            Products = allProducts
-        };
-
-        categories.Insert(0, generalCategory);
-        Categories = categories.ToArray();
-
-        Console.WriteLine("Setting selected categor");
+        var data = await _connectionManager.GetInitialDataAsync<KioskDataResponse>();
         
-        SelectedCategory = Categories[0];
-
+        _categories = data.Categories;
+        _products = data.Products;
+        
         
         Console.WriteLine("Done setting category");
         
@@ -89,15 +80,84 @@ public partial class Kiosk : ComponentBase
         
         IsLoading = false;
     }
+
+
+    private ProductDto[] GetVisibleProducts()
+    {
+        if (_selectedCategory == Guid.Empty)
+        {
+            return _products;
+        }
+       
+        return _products.Where(p => p.CategoryId == _selectedCategory).ToArray();
+    }
+
+
+    private ProductDto GetProduct(Guid id)
+        => _products.First(p => p.Id == id);
+
+
+    private decimal GetFullPrice()
+    {
+        decimal sum = 0;
+        foreach (var item in Order)
+        {
+            sum += GetProduct(item.Key).Price * item.Value;
+        }
+
+        return sum;
+    }
+        
+    
+
+    private void AddProduct(Guid id)
+    {
+        if (Order.ContainsKey(id))
+        {
+            Order[id]++;
+        }
+        else
+        {
+            Order.Add(id, 1);
+        }
+        
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void RemoveProduct(Guid id)
+    {
+        if (Order.ContainsKey(id))
+        {
+            Order[id]--;
+
+            if (Order[id] == 0)
+            {
+                Order.Remove(id);
+            }
+            
+            InvokeAsync(StateHasChanged);
+        }
+    }
     
     
     private async Task SendOrderAsync()
     {
-        _orderButton.ShowLoading("Sending order");
+        LoadingMessage = "Sending order...";
+        IsLoading = true;
+        OrderResponse = await KioskHubController.SendOrderAsync(Order ,_hubConnection);
+        IsLoading = false;
 
-        Order = await KioskHubController.SendOrderAsync(Order! ,_hubConnection);
-        
-        _orderButton.HideLoading();
+        StartResetCountDown();
     }
-       
+
+    
+
+
+    private async Task StartResetCountDown()
+    {
+        await Task.Delay(TimeSpan.FromSeconds(10));
+        Order = null;
+
+        await InvokeAsync(StateHasChanged);
+    }
 }

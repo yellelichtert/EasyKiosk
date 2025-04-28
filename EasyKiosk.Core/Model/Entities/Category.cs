@@ -1,6 +1,6 @@
 
 
-namespace EasyKiosk.Core.Model.Entities;
+namespace EasyKiosk.Core.Model;
 
 public class Category : TrackedEntity
 {

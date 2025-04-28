@@ -43,7 +43,11 @@ public class DeviceService : IDeviceService
         var refreshToken = CreateRefreshKey(device);
         await _repository.UpdateAsync(device);
         
-        return new DeviceLoginResponse(_tokenFactory.CreateToken(device), refreshToken);
+        return new DeviceLoginResponse()
+        {
+            Token = _tokenFactory.CreateToken(device),
+            Refresh = refreshToken
+        };
     }
     
     
@@ -54,10 +58,17 @@ public class DeviceService : IDeviceService
         if (!ValidateDevice(device, out var errors))
             return errors;
 
+        
         await _repository.AddAsync(device);
         
         
-        return new DeviceRegisterResponse(device.Id, device.DeviceType, _tokenFactory.CreateToken(device), refreshKey);
+        return new DeviceRegisterResponse()
+        {
+            Id = device.Id,
+            Type = device.DeviceType,
+            Token = _tokenFactory.CreateToken(device),
+            Refresh = refreshKey
+        };
     }
 
 
