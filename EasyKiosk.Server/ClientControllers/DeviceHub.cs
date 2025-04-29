@@ -1,10 +1,5 @@
 using System.Security.Claims;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using EasyKiosk.Core.Model;
-using EasyKiosk.Core.Model.DTO;
-using EasyKiosk.Core.Model.Entities;
-using EasyKiosk.Core.Model.Enums;
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
 using EasyKiosk.Core.Services;
@@ -50,9 +45,9 @@ public class DeviceHub : Hub
             throw new Exception("ERROR UNHANDLED");
             //Send error message?
         }
-        Console.WriteLine("No errors. probleem zit bij model");
         
-        await Clients.Group(ReceiverGroup).SendAsync("ReceiveOrder", JsonSerializer.Serialize(result.Value));
+        
+        await Clients.All.SendAsync("ReceiveOrder", JsonSerializer.Serialize(result.Value));
         await Clients.Client(Context.ConnectionId).SendAsync("ReceiveOrderNumber", JsonSerializer.Serialize(result.Value.MapToResponse()));
     }
 

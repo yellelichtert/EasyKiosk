@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using EasyKiosk.Client.Model;
+using EasyKiosk.Client.UI.Components;
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
 using ErrorOr;
@@ -11,6 +12,11 @@ using DeviceType = EasyKiosk.Core.Model.Enums.DeviceType;
 
 namespace EasyKiosk.Client.Manager;
 
+
+/// <summary>
+/// Handles everything related to connecting to the server for both Kiosk and Receiver.
+/// Only methods that are common between Kiosk and Receiver should be put here.
+/// </summary>
 public sealed class ConnectionManager
 {
     
@@ -43,6 +49,9 @@ public sealed class ConnectionManager
     }
 
     
+    /// <remarks>
+    /// Will reset connection setting if Unauthorized.
+    /// </remarks>
     public async Task<ErrorOr<DeviceType>> LoginAsync()
     {
         
@@ -87,7 +96,7 @@ public sealed class ConnectionManager
         
         
         var response = await MakeRequest<T>(
-            $"Device/Data/{endpointExtension}",
+            $"/Device/Data/{endpointExtension}",
             HttpMethod.Get
         );
 
@@ -100,6 +109,9 @@ public sealed class ConnectionManager
     }
 
 
+    /// <remarks>
+    /// failure to connect currently requires restart of the application
+    /// </remarks>
     public async Task<HubConnection> GetHubConnection()
     {
         var connection = new HubConnectionBuilder()
@@ -107,20 +119,13 @@ public sealed class ConnectionManager
             {
                 options.Headers.Add("Authorization", $"Bearer {Preferences.Get(PreferenceNames.AccessKey, "")}");
             })
-            .WithAutomaticReconnect()
+            .WithAutomaticReconnect(new HubRetryPolicy())
             .Build();
 
-
-        try
-        {
-            await connection.StartAsync();
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
+        await connection.StartAsync();
+        
         return connection;
+        
     }
 
 

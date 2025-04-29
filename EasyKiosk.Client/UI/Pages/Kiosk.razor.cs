@@ -13,8 +13,6 @@ namespace EasyKiosk.Client.UI.Pages;
 
 public partial class Kiosk : ComponentBase
 {
-    [Parameter] public bool IsLoading { get; set; } = true;
-    
     [Parameter] public Dictionary<Guid, int>? Order { get; set;}
     
     [Parameter] public OrderResponse? OrderResponse { get; set; }
@@ -24,6 +22,7 @@ public partial class Kiosk : ComponentBase
     private Offcanvas _orderCanvas;
     
     private ConnectionManager _connectionManager;
+    private NavigationManager _navigationManager;
     
     private HubConnection _hubConnection;
     
@@ -34,57 +33,42 @@ public partial class Kiosk : ComponentBase
     private Guid _selectedCategory = Guid.Empty;
     
     
-    public Kiosk(ConnectionManager connectionManager)
+    public Kiosk(ConnectionManager connectionManager, NavigationManager navigationManager)
     {
         _connectionManager = connectionManager;
+        _navigationManager = navigationManager;
     }
 
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override  async Task OnInitializedAsync()
     {
-        await base.OnAfterRenderAsync(firstRender);
+        LoadingScreen.Show("Fetching data...");
 
-        if (firstRender)
+        var data = await _connectionManager.GetInitialDataAsync<KioskDataResponse>();
+
+        if (data.IsError)
         {
-            LoadingScreen.Show("Fetching data...");
-        
-            var data = await _connectionManager.GetInitialDataAsync<KioskDataResponse>();
-
-            if (data.IsError)
-            {
-                LoadingScreen.Show("error while fetching data...");
-            }
-
-            while (data.IsError)
-            {
-                await _connectionManager.GetInitialDataAsync<KioskDataResponse>();
-            }
-            
-            _categories = data.Value.Categories;
-            _products = data.Value.Products;
-            
-
-
-            LoadingScreen.Show("Connecting to hub...");
-            _hubConnection = await _connectionManager.GetHubConnection();
-        
-            _hubConnection.Reconnecting += (error) =>
-            {
-                LoadingScreen.Show("Connecting to hub...");
-                return Task.CompletedTask;
-            };
-        
-            _hubConnection.Reconnected += (error) =>
-            {
-                LoadingScreen.Hide();
-                return Task.CompletedTask;
-            };
-        
-            LoadingScreen.Hide();
+            LoadingScreen.Show("error while fetching data... ");
         }
+
+        while (data.IsError)
+        {
+            await _connectionManager.GetInitialDataAsync<KioskDataResponse>();
+        }
+
+        _categories = data.Value.Categories;
+        _products = data.Value.Products;
+
         
+        LoadingScreen.Show("Connecting to hub...");
+        
+        _hubConnection = await _connectionManager.GetHubConnection();
+        setupOnHubDisconnect(_hubConnection);
+
+        LoadingScreen.Hide();
     }
-    
+
+
 
     private ProductDto[] GetVisibleProducts()
     {
@@ -166,5 +150,21 @@ public partial class Kiosk : ComponentBase
         OrderResponse = null;
         
         await InvokeAsync(StateHasChanged);
+    }
+    
+    
+    private void setupOnHubDisconnect(HubConnection connection)
+    {
+        _hubConnection.Reconnecting += (error) =>
+        {
+            LoadingScreen.Show("Connecting to hub...");
+            return Task.CompletedTask;
+        };
+
+        _hubConnection.Reconnected += (error) =>
+        {
+            LoadingScreen.Hide();
+            return Task.CompletedTask;
+        };
     }
 }
