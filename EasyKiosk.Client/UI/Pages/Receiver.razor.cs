@@ -40,13 +40,9 @@ public partial class Receiver : ComponentBase
 
         await InvokeAsync(StateHasChanged);
         
-        
-        Console.WriteLine("Hub connection state => " + _connection.State);
 
         _connection.On<string>("ReceiveOrder", (orderJson) =>
         {
-            Console.WriteLine("Order Received");
-            Console.WriteLine("OrderJson => " + orderJson);
             
             var order = JsonSerializer.Deserialize<OrderDto>(orderJson);
             Orders.Add(order);

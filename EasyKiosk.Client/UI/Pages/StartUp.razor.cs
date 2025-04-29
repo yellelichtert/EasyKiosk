@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using EasyKiosk.Client.Manager;
-using EasyKiosk.Client.UI.Components;
 using ErrorOr;
 using Microsoft.AspNetCore.Components;
 using DeviceType = EasyKiosk.Core.Model.Enums.DeviceType;
@@ -35,7 +34,7 @@ public partial class StartUp : ComponentBase
     {
         await base.OnInitializedAsync();
 
-        _isInitialSetup = ConnectionManager.IsInitialSetup();
+        _isInitialSetup = _connectionManager.IsInitialSetup();
         if (!_isInitialSetup)
         {
             await HandleLogin();
@@ -47,7 +46,7 @@ public partial class StartUp : ComponentBase
     {
         _isRegistering = true;
 
-        var registrationResult = await ConnectionManager.RegisterAsync(
+        var registrationResult = await _connectionManager.RegisterAsync(
             $"{_input.Ip1}.{_input.Ip2}.{_input.Ip3}.{_input.Ip4}:{_input.Port}");
 
 
@@ -68,7 +67,7 @@ public partial class StartUp : ComponentBase
     private async Task HandleLogin()
     {
         Console.WriteLine("Handeling login");
-        var result = await ConnectionManager.LoginAsync();
+        var result = await _connectionManager.LoginAsync();
 
 
         if (result.IsError)
@@ -80,11 +79,11 @@ public partial class StartUp : ComponentBase
         
         if (result.Value == DeviceType.Kiosk)
         {
-            NavigationManager.NavigateTo("/Kiosk");
+            _navigationManager.NavigateTo("/Kiosk");
         }
         else
         {
-            NavigationManager.NavigateTo("/Receiver");
+            _navigationManager.NavigateTo("/Receiver");
         }
     }
 
@@ -111,7 +110,6 @@ public partial class StartUp : ComponentBase
             _errorMessage = error.Description;
             _countDownMessage = "Trying again in: ";
         }
-        
         
         
         StartErrorCountDown();

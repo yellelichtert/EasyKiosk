@@ -1,32 +1,31 @@
 @page "/Receiver"
-@using System.Text.Json
-@using EasyKiosk.Client.Manager
-@using EasyKiosk.Client.UI.Components
-@using EasyKiosk.Core.Model
-@using EasyKiosk.Core.Model.DTO
-@using EasyKiosk.Core.Model.Responses
-@using ErrorOr
-@using Microsoft.AspNetCore.SignalR.Client
 
-@inject IJSRuntime js
+
+
 
 <section id="Orders" class="row flex-grow-1 justify-content-start align-content-start px-3 overflow-scroll bg-dark">
    @if (Orders is not null)
    {
        @foreach (var order in Orders)
        {
-           <div class=" d-flex flex-column col-6 vh-50 fs-6 border-3">
+           bool isTapped = false;
+           
+           
+           <div class=" d-flex flex-column col-6 vh-50 fs-3 text-white p-4 border border-3">
                
                <div class="d-flex justify-content-between">
-                   <h5>Order: @order.OrderNumber</h5>
-                   <p>@order.Time.TimeOfDay</p>
+                   <h5><strong>#: @order.OrderNumber - @order.State </strong></h5>
+                   <p><strong>@order.Time.Hour:@order.Time.Minute</strong></p>
                </div>
+               
+               
                
               
                @foreach (var detail in order.OrderDetails)
                {
                    <p class="text-white"><span>@detail.Qty</span>x @detail.ProductName</p>
                }
+               
            </div>
        }
    }
