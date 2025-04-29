@@ -1,9 +1,5 @@
-using System;
 using System.Text.Json;
-using System.Threading.Tasks;
 using EasyKiosk.Client.Model;
-using EasyKiosk.Core.Model;
-using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
 using Microsoft.AspNetCore.SignalR.Client;

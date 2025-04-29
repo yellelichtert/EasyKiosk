@@ -62,14 +62,20 @@ public partial class Kiosk : ComponentBase
         
         LoadingScreen.Show("Connecting to hub...");
         
-        _hubConnection = await _connectionManager.GetHubConnection();
-        setupOnHubDisconnect(_hubConnection);
+        _hubConnection = await _connectionManager.GetHubConnection(_navigationManager);
+
+        
+        _hubConnection.Closed += (error) =>
+        {
+            _navigationManager.NavigateTo("/");
+            return Task.CompletedTask;
+        };
+       
 
         LoadingScreen.Hide();
     }
 
-
-
+    
     private ProductDto[] GetVisibleProducts()
     {
         if (_selectedCategory == Guid.Empty)
@@ -152,19 +158,4 @@ public partial class Kiosk : ComponentBase
         await InvokeAsync(StateHasChanged);
     }
     
-    
-    private void setupOnHubDisconnect(HubConnection connection)
-    {
-        _hubConnection.Reconnecting += (error) =>
-        {
-            LoadingScreen.Show("Connecting to hub...");
-            return Task.CompletedTask;
-        };
-
-        _hubConnection.Reconnected += (error) =>
-        {
-            LoadingScreen.Hide();
-            return Task.CompletedTask;
-        };
-    }
 }

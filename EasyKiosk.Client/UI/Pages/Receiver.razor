@@ -8,28 +8,30 @@
 @using ErrorOr
 @using Microsoft.AspNetCore.SignalR.Client
 
-<div class="d-flex flex-grow-1 bg-dark">
-    
-    @if (Orders is not null)
-    {
-        <div class="row">
-            @for (int i = 0, c = 0; i < Orders.Count; i++, c++)
-            {
-                if (c > _colorCodes.Length-1)
-                    c = 0;
+@inject IJSRuntime js
 
-                
-                <div class="col-6" style="border: 0.3em solid @_colorCodes[c]; color: @_colorCodes[c]">
-                    <h5>Order: @Orders[i].OrderNumber</h5>
-                    @foreach (var detail in Orders[i].OrderDetails)
-                    {
-                        <p class="text-white"><span>@detail.Qty</span>x @detail.ProductName</p>
-                    }
-                </div>
-            }
-        </div>
-    }
-</div>
+<section id="Orders" class="row flex-grow-1 justify-content-start align-content-start px-3 overflow-scroll bg-dark">
+   @if (Orders is not null)
+   {
+       @foreach (var order in Orders)
+       {
+           <div class=" d-flex flex-column col-6 vh-50 fs-6 border-3">
+               
+               <div class="d-flex justify-content-between">
+                   <h5>Order: @order.OrderNumber</h5>
+                   <p>@order.Time.TimeOfDay</p>
+               </div>
+               
+              
+               @foreach (var detail in order.OrderDetails)
+               {
+                   <p class="text-white"><span>@detail.Qty</span>x @detail.ProductName</p>
+               }
+           </div>
+       }
+   }
+</section>
+
 
 
 
@@ -38,18 +40,21 @@
     [CascadingParameter] public LoadingScreen LoadingScreen { get; set; }
     
     private ConnectionManager _connectionManager;
+    private NavigationManager _navigationManager;
+    
     private HubConnection _connection;
 
-    private string[] _colorCodes = ["#ff0000;", "#2bff00;", "#00f7ff;"];
+    
     
     
     
     [Parameter]public List<OrderDto>? Orders { get; set; }
     
     
-    public Receiver(ConnectionManager connectionManager)
+    public Receiver(ConnectionManager connectionManager, NavigationManager navigationManager)
     {
-        _connectionManager = connectionManager; 
+        _connectionManager = connectionManager;
+        _navigationManager = navigationManager;
     }
 
     protected override async Task OnInitializedAsync()
@@ -58,7 +63,7 @@
         
         var data = await _connectionManager.GetInitialDataAsync<ReceiverDataResponse>();
         
-        _connection = await _connectionManager.GetHubConnection();
+        _connection = await _connectionManager.GetHubConnection(_navigationManager);
         Orders = data.Value.OpenOrders.ToList();
         
 
@@ -78,5 +83,4 @@
             InvokeAsync(StateHasChanged);
         });
     }
-    
 }

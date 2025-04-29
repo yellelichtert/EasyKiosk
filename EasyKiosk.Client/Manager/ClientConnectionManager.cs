@@ -3,10 +3,10 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using EasyKiosk.Client.Model;
-using EasyKiosk.Client.UI.Components;
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
 using ErrorOr;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 using DeviceType = EasyKiosk.Core.Model.Enums.DeviceType;
 
@@ -109,20 +109,31 @@ public sealed class ConnectionManager
     }
 
 
-    /// <remarks>
-    /// failure to connect currently requires restart of the application
-    /// </remarks>
-    public async Task<HubConnection> GetHubConnection()
+
+    public async Task<HubConnection> GetHubConnection(NavigationManager navigationManager)
     {
         var connection = new HubConnectionBuilder()
             .WithUrl($"http://{Preferences.Get(PreferenceNames.ServerAddress, null)}/Device/Hub", options =>
             {
                 options.Headers.Add("Authorization", $"Bearer {Preferences.Get(PreferenceNames.AccessKey, "")}");
             })
-            .WithAutomaticReconnect(new HubRetryPolicy())
             .Build();
 
-        await connection.StartAsync();
+        try
+        {
+            await connection.StartAsync();
+        }
+        catch (Exception e)
+        {
+           navigationManager.NavigateTo("/");
+        }
+        
+        
+        connection.Closed += (error) =>
+        {
+            navigationManager.NavigateTo("/");
+            return Task.CompletedTask;
+        };
         
         return connection;
         
