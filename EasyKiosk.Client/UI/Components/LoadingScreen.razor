@@ -1,0 +1,60 @@
+
+@if (_isVisible)
+{
+    <div class="d-flex  position-absolute po w-100 h-100 flex-grow-1 align-items-center justify-content-center bg-warning-xs bg-dark-sm bg-info-md bg-light" style="z-index: 999">
+
+
+        <div class="d-flex flex-column w-75 h-50 card shadow justify-content-center align-items-center">
+
+            <div class="d-flex h-25 justify-content-center">
+                
+                <img src="../img/logo.png" alt="Easy kiosk logo" class="img-fluid">
+                
+            </div>
+
+
+            <div class="d-flex flex-column p-5">
+                
+                <h5 class="align-self-center text-center flex-grow-1 text-center">@(_message ?? "Loading")</h5>
+
+                @if (_secondaryMessage is not null)
+                {
+                    <p class="muted">@_secondaryMessage</p>
+                }
+
+                <Spinner Size="SpinnerSize.Large"/>
+                
+            </div>
+
+        
+        </div>
+    
+    </div>
+
+}
+
+
+@code {
+
+    
+    private bool _isVisible;
+    private string? _message;
+    private string? _secondaryMessage;
+    
+    public void Show(string? message  = null, string? secondaryMessage = null)
+    {
+        _message = message;
+        _secondaryMessage = secondaryMessage;
+        _isVisible = true;
+        
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Hide()
+    {
+        _isVisible = false;
+        
+        InvokeAsync(StateHasChanged);
+    }
+        
+}

@@ -1,86 +1,90 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BlazorBootstrap;
 using EasyKiosk.Client.HubMethods;
 using EasyKiosk.Client.Manager;
-using EasyKiosk.Client.Model;
-using EasyKiosk.Core.Model;
+using EasyKiosk.Client.UI.Components;
 using EasyKiosk.Core.Model.DTO;
-using EasyKiosk.Core.Model.Entities;
-using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
-using ErrorOr;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
-using Button = BlazorBootstrap.Button;
+
+
 
 namespace EasyKiosk.Client.UI.Pages;
 
 public partial class Kiosk : ComponentBase
 {
-    private ConnectionManager _connectionManager;
+    [Parameter] public bool IsLoading { get; set; } = true;
     
-    [Parameter] public bool IsLoading { get; set; }
-    [Parameter] public string LoadingMessage { get; set; }
-    [Parameter] public Dictionary<Guid, int> Order { get; set;}
+    [Parameter] public Dictionary<Guid, int>? Order { get; set;}
+    
     [Parameter] public OrderResponse? OrderResponse { get; set; }
     
     
-    private CategoryDto[]? _categories;
-    private ProductDto[]? _products;
-    private Guid? _selectedCategory = Guid.Empty;
+    [CascadingParameter] public LoadingScreen LoadingScreen { get; set; }
+    private Offcanvas _orderCanvas;
     
+    private ConnectionManager _connectionManager;
     
-    private Offcanvas _orderCanvas = default!;
-    private Button _orderButton = default!;
-
     private HubConnection _hubConnection;
-
+    
+    private CategoryDto[]? _categories;
+    
+    private ProductDto[]? _products;
+    
+    private Guid _selectedCategory = Guid.Empty;
+    
+    
     public Kiosk(ConnectionManager connectionManager)
     {
         _connectionManager = connectionManager;
     }
-    
-    
-    
-    protected override async Task OnInitializedAsync()
-    {
-        IsLoading = true;
-        
-        
-        await base.OnInitializedAsync();
-        
-        LoadingMessage = "Fetching data...";
-        
-        var data = await _connectionManager.GetInitialDataAsync<KioskDataResponse>();
-        
-        _categories = data.Categories;
-        _products = data.Products;
-        
-        
-        Console.WriteLine("Done setting category");
-        
-        LoadingMessage = "Connecting to hub...";
-        
-        _hubConnection = await _connectionManager.GetHubConnection();
-        
-        _hubConnection.Reconnecting += (error) =>
-        {
-            LoadingMessage = "Connecting to hub...";
-            IsLoading = true;
-            return Task.CompletedTask;
-        };
-        
-        _hubConnection.Reconnected += (error) =>
-        {
-            IsLoading = false;
-            return Task.CompletedTask;
-        };
-        
-        IsLoading = false;
-    }
 
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+            LoadingScreen.Show("Fetching data...");
+        
+            var data = await _connectionManager.GetInitialDataAsync<KioskDataResponse>();
+
+            if (data.IsError)
+            {
+                LoadingScreen.Show("error while fetching data...");
+            }
+
+            while (data.IsError)
+            {
+                await _connectionManager.GetInitialDataAsync<KioskDataResponse>();
+            }
+            
+            _categories = data.Value.Categories;
+            _products = data.Value.Products;
+            
+
+
+            LoadingScreen.Show("Connecting to hub...");
+            _hubConnection = await _connectionManager.GetHubConnection();
+        
+            _hubConnection.Reconnecting += (error) =>
+            {
+                LoadingScreen.Show("Connecting to hub...");
+                return Task.CompletedTask;
+            };
+        
+            _hubConnection.Reconnected += (error) =>
+            {
+                LoadingScreen.Hide();
+                return Task.CompletedTask;
+            };
+        
+            LoadingScreen.Hide();
+        }
+        
+    }
+    
 
     private ProductDto[] GetVisibleProducts()
     {
@@ -142,11 +146,12 @@ public partial class Kiosk : ComponentBase
     
     private async Task SendOrderAsync()
     {
-        LoadingMessage = "Sending order...";
-        IsLoading = true;
+        LoadingScreen.Show("Sending order...");
+        
         OrderResponse = await KioskHubController.SendOrderAsync(Order ,_hubConnection);
-        IsLoading = false;
-
+        
+        LoadingScreen.Hide();
+        
         StartResetCountDown();
     }
 
@@ -156,8 +161,10 @@ public partial class Kiosk : ComponentBase
     private async Task StartResetCountDown()
     {
         await Task.Delay(TimeSpan.FromSeconds(10));
+        
         Order = null;
-
+        OrderResponse = null;
+        
         await InvokeAsync(StateHasChanged);
     }
 }

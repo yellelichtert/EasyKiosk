@@ -1,6 +1,7 @@
 namespace EasyKiosk.Core.Model.Requests;
 
-public record DeviceLoginRequest(
-    Guid Id,
-    string Key
-    );
+public sealed record DeviceLoginRequest
+{
+    public required Guid Id { get; init; }
+    public required string Key { get; init; }
+};

@@ -1,15 +1,10 @@
-@page "/Kiosk"
+@using EasyKiosk.Client.UI.Layout
 
-@if (IsLoading)
-{
-    <div class="d-flex flex-column flex-grow-1 aling-content-center justify-content-center">
-        
-        <h1 class="align-self-center text-center flex-grow-1">@LoadingMessage </h1>
-        <Spinner Size="SpinnerSize.Large" />
-        
-    </div>
-}
-else if (Order is null)
+@page "/Kiosk"
+@layout MainLayout
+
+
+@if (Order is null)
 {
     <div class="h-100 w-100 d-flex align-items-center justify-content-center" @onclick="(() => {Order = new(); })">
         Tap to Order....
@@ -18,34 +13,34 @@ else if (Order is null)
 else if (OrderResponse is not null)
 {
     <div class="d-flex flex-column flex-grow-1 justify-content-around align-items-center">
-            
+
         <div>
             <h1>Your order has been send to the kitchen!</h1>
             <p class="lead text-muted">when the order is done, you'll be able to pick up at the pick-up desk.</p>
         </div>
-        
+
         <h1>OrderNumber: <span class="font-weight-black">@OrderResponse.OrderNumber</span></h1>
-        
-        
-    </div>    
+
+
+    </div>
 }
 else if (_categories is not null)
 {
-    
+
     @* Categories *@
     <section id="Categories" class="row h-25">
         <div class="container-fluid d-flex overflow-scroll py-5">
             @foreach (var category in _categories)
             {
                 <button @onclick="() => { _selectedCategory = category.Id; }" class="btn bg-white col-3 h-100 mx-3 shadow rounded @(category.Img != null ? "d-flex flex-column justify-content-center align-items-center" : "")">
-                    
+
                     @if (category.Img is not null)
                     {
                         <div class="flex-grow-1 p-4">
                             <img class="img-fluid" src="@category.Img" alt="Category Icon">
                         </div>
                     }
-                    
+
                     <h3>@category.Name</h3>
                 </button>
             }
@@ -59,15 +54,15 @@ else if (_categories is not null)
         @foreach (var product in GetVisibleProducts())
         {
             <div class="col-4 d-flex p-3" style="height: 40%">
-                
+
                 <Card class="bg-white rounded shadow flex-grow-1 d-flex flex-column justify-content-between border-0">
 
                     @* Image *@
                     <div class="d-flex flex-grow-1 justify-content-center rounded-top">
                         <img src="@product.Img" alt="Easy kiosk logo" class="img-fluid object-fit-cover rounded-top">
                     </div>
-                    
-                    
+
+
                     @* details *@
                     <div class="h-50 p-2 d-flex flex-column flex-grow-1">
                         <h6 class="display-6" style="font-size: 1.4rem">@product.Name</h6>
@@ -76,10 +71,10 @@ else if (_categories is not null)
                         </div>
                     </div>
 
-                    
+
                     @* Price & buttons *@
                     <div class="d-flex justify-content-between p-2 class align-items-center">
-                        
+
                         <p class="lead align-self-center text-center">&euro;@product.Price</p>
 
                         <div class="d-flex">
@@ -89,7 +84,7 @@ else if (_categories is not null)
                                 <Button Size="ButtonSize.Small" Color="ButtonColor.Primary" @onclick="(() => {RemoveProduct(product.Id);})">
                                     <Icon Name="IconName.DashLg"/>
                                 </Button>
-                            
+
                                 <p class="mx-1 fs-6">@Order[product.Id]</p>
                             }
 
@@ -113,31 +108,31 @@ else if (_categories is not null)
         <BiBasketFill/>
     </button>
     }
-    
-    
+
+
     <Offcanvas @ref="_orderCanvas" Title="Order" Placement="Placement.Bottom" Class="rounded-3 h-75 ">
         <BodyTemplate>
             <div class="d-flex flex-column h-100 flex-grow-1 justify-items-center align-content-center container-fluid p-5">
-                
-                
+
+
                 <div class="flex-grow-1 overflow-scroll">
                     @foreach (var item in Order)
                     {
                         var product = GetProduct(item.Key);
-                                                    
+
                         <div class="d-flex">
 
                             <div class="d-flex justify-content-between align-items-center" style="width: 5rem;">
                                 <img src="@product.Img" alt="Product image" class="img-fluid object-fit-cover rounded-circle">
                             </div>
-                
-                            
+
+
                             <div class="d-flex flex-grow-1 px-2 align-items-center justify-content-between">
                                 <p class="fs-2 font-weight-bold text-truncate align-middle">@product.Name</p>
                                 <p class="fs-4 fst-italic text-muted">@item.Value&#64&euro;@product.Price</p>
                             </div>
-                
-                
+
+
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="m-1">
                                     <Button Color="ButtonColor.Primary" @onclick="(() => {RemoveProduct(product.Id);})">
@@ -149,13 +144,13 @@ else if (_categories is not null)
                                         <Icon Name="IconName.PlusLg"/>
                                     </Button>
                                 </div>
-                              
+
                             </div>
                         </div>
-                        
+
                         <div class="d-flex justify-content-around mx-3">
                             <hr class="w-50 justify-self-center">
-                        </div>    
+                        </div>
                     }
                 </div>
 
@@ -181,5 +176,7 @@ else if (_categories is not null)
             </div>
         </BodyTemplate>
     </Offcanvas>
-    
 }
+
+
+

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace EasyKiosk.Core.Model.DTO;
 
 public sealed record OrderDetailDto
@@ -6,6 +8,7 @@ public sealed record OrderDetailDto
     public required string ProductName { get; init; }
     public  required int Qty { get; init; }
     
+    [JsonConstructor]
     internal  OrderDetailDto() { }
 }
 

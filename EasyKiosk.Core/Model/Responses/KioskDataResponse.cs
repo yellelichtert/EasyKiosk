@@ -6,4 +6,5 @@ public sealed record KioskDataResponse
 {
     public required CategoryDto[] Categories { get; init; }
     public required ProductDto[] Products { get; init; }
+   
 }

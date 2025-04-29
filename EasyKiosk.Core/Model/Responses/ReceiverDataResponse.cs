@@ -4,5 +4,5 @@ namespace EasyKiosk.Core.Model.Responses;
 
 public sealed record ReceiverDataResponse
 {
-    public required OrderDto[] OpenOrders { get; init; }
+    public required OrderDto[] OpenOrders { get; set; }
 }

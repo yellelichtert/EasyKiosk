@@ -1,4 +1,4 @@
-using EasyKiosk.Core.Model.Entities;
+using System.Text.Json.Serialization;
 
 namespace EasyKiosk.Core.Model.DTO;
 
@@ -7,6 +7,9 @@ public sealed record CategoryDto
     public Guid Id { get; init; }
     public string Name { get; init; }
     public string? Img { get; init; }
+    
+    [JsonConstructor]
+    internal CategoryDto(){}
 }
 
 

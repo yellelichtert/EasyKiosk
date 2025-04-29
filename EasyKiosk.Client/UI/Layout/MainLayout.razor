@@ -1,7 +1,18 @@
-﻿@inherits LayoutComponentBase
+﻿@using EasyKiosk.Client.UI.Components
+@inherits LayoutComponentBase
 
 <main class="vh-100 d-flex flex-column">
-    @Body
+    <CascadingValue Value="LoadingScreen">
+        @Body
+    </CascadingValue>
+
+    <LoadingScreen @ref="LoadingScreen"/>
 </main>
 
 
+
+@code {
+
+    [CascadingParameter] public LoadingScreen LoadingScreen { get; set; } = default!;
+
+}

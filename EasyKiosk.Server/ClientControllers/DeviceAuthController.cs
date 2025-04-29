@@ -31,9 +31,8 @@ public class ClientAuthController : Controller
     [Route("/Device/Login")]
     public async Task<ActionResult<DeviceLoginResponse>> LoginAsync([FromBody]DeviceLoginRequest request)
     {
-        Console.WriteLine("Login hit....");
-        
         var result = await _deviceService.LoginAsync(request);
+        
         
         if (result.IsError)
         {
@@ -50,6 +49,8 @@ public class ClientAuthController : Controller
     [Route("/Device/Register")]
     public async Task<ActionResult<DeviceRegisterResponse>> RegisterAsync()
     {
+        Console.WriteLine("Registratie hot");
+        
         TaskCompletionSource<DeviceRegisterResponse?> tcs = new();
         NewDeviceNotification notification = new(tcs);
         

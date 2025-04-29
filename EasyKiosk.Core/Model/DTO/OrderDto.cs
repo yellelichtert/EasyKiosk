@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using EasyKiosk.Core.Model.Enums;
 
 namespace EasyKiosk.Core.Model.DTO;
@@ -9,6 +10,7 @@ public sealed record OrderDto
     public required OrderState State { get; set; }
     public required DateTime Time { get; init; }
 
+    [JsonConstructor]
     internal OrderDto() { }
 }
 

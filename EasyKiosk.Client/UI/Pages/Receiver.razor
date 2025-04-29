@@ -2,11 +2,13 @@
 @using System.Text.Json
 @using EasyKiosk.Client.Manager
 @using EasyKiosk.Core.Model
+@using EasyKiosk.Core.Model.DTO
+@using EasyKiosk.Core.Model.Responses
 @using Microsoft.AspNetCore.SignalR.Client
 
 <div class="d-flex flex-grow-1 bg-dark">
     
-    @if (Orders is not null && _products is not null)
+    @if (Orders is not null)
     {
         <div class="row">
             @for (int i = 0, c = 0; i < Orders.Count; i++, c++)
@@ -19,7 +21,7 @@
                     <h5>Order: @Orders[i].OrderNumber</h5>
                     @foreach (var detail in Orders[i].OrderDetails)
                     {
-                        <p class="text-white"><span>@detail.Qty</span>x - @_products.FirstOrDefault(p => p.Id == detail.ProductId).Name</p>
+                        <p class="text-white"><span>@detail.Qty</span>x @detail.ProductName</p>
                     }
                 </div>
             }
@@ -38,9 +40,8 @@
     
     
     
-    [Parameter]public List<Order>? Orders { get; set; }
-
-    private Product[]? _products;
+    [Parameter]public List<OrderDto>? Orders { get; set; }
+    
     
     public Receiver(ConnectionManager connectionManager)
     {
@@ -51,16 +52,15 @@
     {
         await base.OnInitializedAsync();
         
-        var initialData = await _connectionManager.GetInitialDataAsync<(List<Order>, Product[])>();
-
-        Console.WriteLine("Past intial");
-        
-        Orders = initialData.Item1;
-  
-        
-        Console.WriteLine("ProductCount: " + _products.Length);
+        var data = await _connectionManager.GetInitialDataAsync<ReceiverDataResponse>();
         
         _connection = await _connectionManager.GetHubConnection();
+
+        
+        Orders = data.Value.OpenOrders.ToList();
+        
+
+        await InvokeAsync(StateHasChanged);
         
         
         Console.WriteLine("Hub connection state => " + _connection.State);
@@ -70,13 +70,11 @@
             Console.WriteLine("Order Received");
             Console.WriteLine("OrderJson => " + orderJson);
             
-            Order order = JsonSerializer.Deserialize<Order>(orderJson);
+            var order = JsonSerializer.Deserialize<OrderDto>(orderJson);
             Orders.Add(order);
+            
             InvokeAsync(StateHasChanged);
         });
-
-
-        Console.WriteLine("Order count = " + Orders.Count);
     }
     
 }

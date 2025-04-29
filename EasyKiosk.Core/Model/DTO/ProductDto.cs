@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace EasyKiosk.Core.Model.DTO;
 
 public sealed record ProductDto
@@ -9,6 +11,7 @@ public sealed record ProductDto
     public required decimal Price { get; init; }
     public string? Img { get; init; }
     
+    [JsonConstructor]
     internal ProductDto(){}
 }
 

@@ -1,7 +1,3 @@
-using System.Text.Json;
-using EasyKiosk.Core.Model;
-using EasyKiosk.Core.Model.DTO;
-using EasyKiosk.Core.Model.Enums;
 using EasyKiosk.Core.Model.Responses;
 using EasyKiosk.Core.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
