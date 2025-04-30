@@ -11,6 +11,21 @@ internal class Order : TrackedEntity
     
 
     public string OrderNumber => Id.ToString().Substring(Id.ToString().Length - 3);
+
+
+
+    public void UpdateState()
+    {
+        if (State == OrderState.InProgress)
+        {
+            State = OrderState.Ready;
+        }
+
+        else if (State == OrderState.Ready)
+        {
+            State = OrderState.Finished;
+        }
+    }
     
 }
 

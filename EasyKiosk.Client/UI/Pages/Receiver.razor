@@ -8,14 +8,11 @@
    {
        @foreach (var order in Orders)
        {
-           bool isTapped = false;
-           
-           
-           <div class=" d-flex flex-column col-6 vh-50 fs-3 text-white p-4 border border-3">
+           <div class=" d-flex flex-column col-6 vh-50 fs-3 text-white p-4 border border-3" @onclick="(() => HandleOrderTap(order.OrderNumber))">
                
                <div class="d-flex justify-content-between">
                    <h5><strong>#: @order.OrderNumber - @order.State </strong></h5>
-                   <p><strong>@order.Time.Hour:@order.Time.Minute</strong></p>
+                   <p><strong>@order.Time.Hour:@(order.Time.Minute < 10 ? $"0{order.Time.Minute}" : $"{order.Time.Minute}")</strong></p>
                </div>
                
                
@@ -25,9 +22,19 @@
                {
                    <p class="text-white"><span>@detail.Qty</span>x @detail.ProductName</p>
                }
-               
+                 
            </div>
        }
    }
 </section>
 
+
+<Modal @ref="_modal" IsVerticallyCentered="true" ShowCloseButton="false" OnShowing="OnModelShown">
+    <BodyTemplate>
+        <Button @ref="_updateButton" @onclick="HandleUpdateOrderRequest">
+            
+            <p class="h3 text-center">Update order</p>
+            
+        </Button>
+    </BodyTemplate>
+</Modal>

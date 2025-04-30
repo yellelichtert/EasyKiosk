@@ -1,4 +1,4 @@
-namespace EasyKiosk.Core.Model.Responses;
+namespace EasyKiosk.Core.Model.Responses.Device;
 
 public sealed record DeviceLoginResponse
 {
