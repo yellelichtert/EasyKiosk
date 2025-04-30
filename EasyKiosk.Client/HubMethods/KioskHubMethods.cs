@@ -1,6 +1,7 @@
 using System.Text.Json;
 using EasyKiosk.Client.Model;
 using EasyKiosk.Core.Model.Requests;
+using EasyKiosk.Core.Model.Requests.Order;
 using EasyKiosk.Core.Model.Responses;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -9,11 +10,21 @@ namespace EasyKiosk.Client.HubMethods;
 public static class KioskHubController
 {
 
+    
     public static void MapKioskMethods(this HubConnection connection)
     {
-        
+        connection.On<string>("Error", (message) =>
+        {
+            OnError?.Invoke(message);
+        });
     }
 
+    
+    public static event Action<string>? OnError;
+    
+
+    
+    
     public static async Task<OrderResponse> SendOrderAsync(Dictionary<Guid, int> order, HubConnection connection)
     {
         var request = new OrderRequest()

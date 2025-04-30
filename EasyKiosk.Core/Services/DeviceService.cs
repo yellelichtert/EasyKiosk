@@ -2,6 +2,7 @@ using EasyKiosk.Core.Factory;
 using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
+using EasyKiosk.Core.Model.Responses.Device;
 using EasyKiosk.Core.Repositories;
 using EasyKiosk.Core.Utils;
 using ErrorOr;

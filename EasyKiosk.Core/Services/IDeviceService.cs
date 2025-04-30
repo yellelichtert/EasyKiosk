@@ -1,6 +1,7 @@
 using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
+using EasyKiosk.Core.Model.Responses.Device;
 using ErrorOr;
 
 namespace EasyKiosk.Core.Services;

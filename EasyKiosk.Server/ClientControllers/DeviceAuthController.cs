@@ -1,5 +1,6 @@
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
+using EasyKiosk.Core.Model.Responses.Device;
 using EasyKiosk.Core.Services;
 using EasyKiosk.Server.Manager.Device.Notifications;
 using EasyKiosk.Server.Service;

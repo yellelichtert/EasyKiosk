@@ -1,4 +1,5 @@
 using EasyKiosk.Core.Model.Responses;
+using EasyKiosk.Core.Model.Responses.Device;
 using EasyKiosk.Server.Manager.Components.Common.Notifications.Base;
 
 

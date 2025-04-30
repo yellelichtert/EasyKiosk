@@ -5,6 +5,7 @@ using System.Text.Json;
 using EasyKiosk.Client.Model;
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
+using EasyKiosk.Core.Model.Responses.Device;
 using ErrorOr;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;

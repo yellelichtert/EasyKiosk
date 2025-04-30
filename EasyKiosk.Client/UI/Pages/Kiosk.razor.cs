@@ -31,6 +31,10 @@ public partial class Kiosk : ComponentBase
     private ProductDto[]? _products;
     
     private Guid _selectedCategory = Guid.Empty;
+
+    
+    private bool _hasErrors;
+    private string _errorMessage;
     
     
     public Kiosk(ConnectionManager connectionManager, NavigationManager navigationManager)
@@ -64,14 +68,8 @@ public partial class Kiosk : ComponentBase
         
         _hubConnection = await _connectionManager.GetHubConnection(_navigationManager);
 
-        
-        _hubConnection.Closed += (error) =>
-        {
-            _navigationManager.NavigateTo("/");
-            return Task.CompletedTask;
-        };
-       
-
+        KioskHubController.OnError += HandleError;
+   
         LoadingScreen.Hide();
     }
 
@@ -146,16 +144,26 @@ public partial class Kiosk : ComponentBase
     }
 
     
+    //todo: move error handling into loading screen => also on connection manager
+    private void HandleError(string message)
+    {
+        _errorMessage = message;
+        _hasErrors = true;
 
+        StartResetCountDown();
+    }
 
+    
+    
     private async Task StartResetCountDown()
     {
         await Task.Delay(TimeSpan.FromSeconds(10));
         
         Order = null;
         OrderResponse = null;
+        _hasErrors = false;
         
         await InvokeAsync(StateHasChanged);
     }
-    
+
 }
