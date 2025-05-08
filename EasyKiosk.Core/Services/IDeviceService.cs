@@ -1,4 +1,4 @@
-using EasyKiosk.Core.Model.Entities;
+using EasyKiosk.Core.Model;
 using EasyKiosk.Core.Model.Requests;
 using EasyKiosk.Core.Model.Responses;
 using EasyKiosk.Core.Model.Responses.Device;
@@ -8,7 +8,7 @@ namespace EasyKiosk.Core.Services;
 
 public interface IDeviceService
 {
-    Device[] GetAllDevices();   
+    Task<IReadOnlyList<Device>> GetDevicesAsync();   
 
     Task<ErrorOr<DeviceLoginResponse>> LoginAsync(DeviceLoginRequest request);
     

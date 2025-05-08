@@ -1,7 +1,5 @@
-using System.Collections.ObjectModel;
 using EasyKiosk.Core.Context;
 using EasyKiosk.Core.Model;
-using EasyKiosk.Core.Repositories;
 using ErrorOr;
 using Microsoft.EntityFrameworkCore;
 

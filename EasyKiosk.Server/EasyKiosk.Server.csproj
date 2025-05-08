@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\EasyKiosk.Core\EasyKiosk.Core.csproj" />
-      <ProjectReference Include="..\EasyKiosk.Infrastructure\EasyKiosk.Infrastructure.csproj" />
     </ItemGroup>
 
     <ItemGroup>

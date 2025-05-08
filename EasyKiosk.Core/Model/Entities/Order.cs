@@ -1,4 +1,3 @@
-using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Model.Enums;
 
 namespace EasyKiosk.Core.Model;

@@ -1,5 +1,4 @@
 using EasyKiosk.Core.Model;
-using EasyKiosk.Core.Model.Entities;
 using ErrorOr;
 
 namespace EasyKiosk.Core.Services;

@@ -1,7 +1,7 @@
 using System.Text;
 using EasyKiosk.Core.Context;
 using EasyKiosk.Core.Factory;
-using EasyKiosk.Core.Model.Entities;
+using EasyKiosk.Core.Model;
 using EasyKiosk.Core.Services;
 using EasyKiosk.Server.Auth;
 using EasyKiosk.Server.ClientControllers;

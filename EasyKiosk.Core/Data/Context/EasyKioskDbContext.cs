@@ -1,5 +1,4 @@
 using EasyKiosk.Core.Model;
-using EasyKiosk.Core.Model.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
