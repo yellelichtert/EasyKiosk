@@ -5,7 +5,6 @@
 @using Blazor.Bootstrap.Icons.Components
 @using EasyKiosk.Core.Model
 @using EasyKiosk.Server.Manager.Components
-@using EasyKiosk.Core.Model.Entities
 @using Microsoft.AspNetCore.Authorization
 
 
@@ -38,9 +37,9 @@
                                 }
                                 else
                                 {
-                                    <option selected value="@_selectedProduct.CategoryId">@_menuService.GetCategories().First(c => c.Id == _selectedProduct.CategoryId).Name</option>
+                                    <option selected value="@_selectedProduct.CategoryId">@_categories.First(c => c.Id == _selectedProduct.CategoryId).Name</option>
                                 }
-                                @foreach (var category in _menuService.GetCategories())
+                                @foreach (var category in _categories)
                                 {
                                     if (category.Id != _selectedProduct.CategoryId)
                                     {
@@ -69,7 +68,7 @@
                             <InputText id="Name" @bind-Value="_selectedCategory.Name"/>
                             </div>
 
-                            <EditableList ItemSource="@_selectedCategory.Products" AddSource="@GetProductsExcludeCategory(_selectedCategory)"/>
+                            <EditableList ItemSource="@_selectedCategory.Products" AddSource="@_products.Where(p => p.CategoryId != _selectedCategory.Id).ToList()"/>
                   
                             
                         <input type="submit" class="btn btn-primary">@(_formLoading ? "Loading" : "Create")
@@ -118,8 +117,8 @@
         @* Statcards *@
         <div class="h-25 p-5 d-flex justify-content-evenly" style="z-index: inherit">
             
-            <StatCard Value="@_menuService.GetProducts().Count()">Total Products: </StatCard>
-            <StatCard Value="@_menuService.GetCategories().Count()">Total Categories: </StatCard>
+            <StatCard Value="@_products.Count">Total Products: </StatCard>
+            <StatCard Value="@_categories.Count">Total Categories: </StatCard>
             <StatCard Value="@("xx")">XXXXXXXX: </StatCard>
             <StatCard Value="@("xx")">XXXXXXXX: </StatCard>
             
@@ -140,14 +139,14 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach (Product product in _menuService.GetProducts())
+                    @foreach (Product product in _products)
                     {
                         <tr>
                             <td><input @key="product.Id" type="checkbox" onchange=@(() => ProductCheckboxHandler(product))></td>
                             <td>@product.Name</td>
                             <td>@product.Description</td>
                             <td>@product.Price</td>
-                            <td>@_menuService.GetCategories().First(c => c.Id == product.CategoryId).Name</td>
+                            <td>@_categories.First(c => c.Id == product.CategoryId).Name</td>
                             <td><button class="btn btn-warning text-white" onclick="@(() => OpenProductForm(product))"><BiPencilSquare/></button></td>
                         </tr>
                     }
@@ -165,7 +164,7 @@
         <EntityList CreateHandler="@OpenCategoryForm" DeleteHandler="@DeleteCategory">
             
             
-            @foreach (var category in _menuService.GetCategories())
+            @foreach (var category in _categories)
             {
                 <div  class="d-flex justify-content-between py-1 px-2 align-items-center @(!_popup.IsVisible && _selectedCategory?.Id == category.Id ? "border border-info" : "border-bottom")">
                     

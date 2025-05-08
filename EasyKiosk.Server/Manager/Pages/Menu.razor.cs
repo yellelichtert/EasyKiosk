@@ -17,7 +17,9 @@ public partial class Menu : ComponentBase
 {
 
     private readonly IMenuService _menuService;
-    
+
+    private IReadOnlyList<Category> _categories;
+    private IReadOnlyList<Product> _products;
     
     private Product? _selectedProduct;
     private Category? _selectedCategory;
@@ -35,11 +37,20 @@ public partial class Menu : ComponentBase
     {
         _menuService = menuService;
         _notificationManager = notificationManager;
+
         
         _checkedProducts = new();
     }
 
-    
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        
+        _categories = await _menuService.GetCategoriesAsync();
+        _products = await _menuService.GetProductsAsync();
+    }
+
 
     private void OpenProductForm() => OpenProductForm(new Product());
     private void OpenProductForm(Product product)
@@ -59,9 +70,7 @@ public partial class Menu : ComponentBase
         _popup.UpdateTitle( category.Id == Guid.Empty ? "Add Category" : "Edit Category");
         _popup.Show();
     }
-
-    private List<Product> GetProductsExcludeCategory(Category category)
-        => _menuService.GetProducts().Where(p => p.Category != category).ToList();
+    
     
     
     private async Task HandleProductSubmit()
@@ -121,6 +130,7 @@ public partial class Menu : ComponentBase
         }
         else
         {
+            _categories = await _menuService.GetCategoriesAsync();
             _popup.Close();
         }
     }
@@ -163,9 +173,17 @@ public partial class Menu : ComponentBase
             var result = await _menuService.DeleteCategoryAsync(_selectedCategory);
 
             if (result.IsError)
+            {
                 AddErrorNotifications(result.Errors);
+            }
+            else
+            {
+                _categories = await _menuService.GetCategoriesAsync();
+            }
 
-            InvokeAsync(StateHasChanged);
+            
+            
+            await InvokeAsync(StateHasChanged);
         });
     }
     

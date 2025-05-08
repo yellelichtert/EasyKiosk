@@ -2,8 +2,6 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyKiosk.Core", "EasyKiosk.Core\EasyKiosk.Core.csproj", "{16132485-A3B0-405C-9F1C-499D87A0009B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyKiosk.Infrastructure", "EasyKiosk.Infrastructure\EasyKiosk.Infrastructure.csproj", "{9531818C-80EA-450C-8692-785079FFD9A7}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyKiosk.Server", "EasyKiosk.Server\EasyKiosk.Server.csproj", "{47E79E20-8097-4E28-BB6F-B62FE8D46A42}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EasyKiosk.Client", "EasyKiosk.Client\EasyKiosk.Client.csproj", "{E1869E44-8C4F-44C5-87EA-6B01A9533F91}"
@@ -18,10 +16,6 @@ Global
 		{16132485-A3B0-405C-9F1C-499D87A0009B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16132485-A3B0-405C-9F1C-499D87A0009B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16132485-A3B0-405C-9F1C-499D87A0009B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9531818C-80EA-450C-8692-785079FFD9A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9531818C-80EA-450C-8692-785079FFD9A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9531818C-80EA-450C-8692-785079FFD9A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9531818C-80EA-450C-8692-785079FFD9A7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{47E79E20-8097-4E28-BB6F-B62FE8D46A42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{47E79E20-8097-4E28-BB6F-B62FE8D46A42}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{47E79E20-8097-4E28-BB6F-B62FE8D46A42}.Release|Any CPU.ActiveCfg = Release|Any CPU

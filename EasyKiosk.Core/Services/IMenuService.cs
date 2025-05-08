@@ -6,13 +6,13 @@ namespace EasyKiosk.Core.Services;
 
 public interface IMenuService
 {
-    IEnumerable<Product> GetProducts();
+    Task<IReadOnlyList<Product>> GetProductsAsync();
     Task<ErrorOr<Product>> AddProductAsync(Product product);
     Task<ErrorOr<Product>> UpdateProductAsync(Product product);
     Task<ErrorOr<bool>> DeleteProductAsync(Product product);
     
 
-    IEnumerable<Category> GetCategories();
+    Task<IReadOnlyList<Category>> GetCategoriesAsync();
     Task<ErrorOr<Category>> AddCategoryAsync(Category category);
     Task<ErrorOr<Category>> UpdateCategoryAsync(Category category);
     Task<ErrorOr<bool>> DeleteCategoryAsync(Category category);

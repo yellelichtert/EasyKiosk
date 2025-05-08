@@ -1,22 +1,26 @@
+using System.Collections.ObjectModel;
+using EasyKiosk.Core.Context;
 using EasyKiosk.Core.Model;
-using EasyKiosk.Core.Model.Entities;
 using EasyKiosk.Core.Repositories;
 using ErrorOr;
+using Microsoft.EntityFrameworkCore;
 
 namespace EasyKiosk.Core.Services;
 
 public class MenuService : IMenuService
 {
-    private readonly ICategoryRepository _categories;
-    private readonly IProductRepository _products;
-
-
-    public MenuService(ICategoryRepository categories, IProductRepository products)
-    {
-        _categories = categories;
-        _products = products;
-    }
     
+    private readonly IDbContextFactory<EasyKioskDbContext> _contextFactory;
+
+
+    
+    
+    public MenuService(IDbContextFactory<EasyKioskDbContext> contextFactory)
+    {
+        
+        _contextFactory = contextFactory;
+        
+    }
     
     
     
@@ -24,123 +28,294 @@ public class MenuService : IMenuService
     //
     // Product methods
     //
-    public IEnumerable<Product> GetProducts()
-        => _products.GetAll();
     
     
+    
+    
+    public async Task<IReadOnlyList<Product>> GetProductsAsync()
+    {
+
+        using (var db = await _contextFactory.CreateDbContextAsync())
+        {
+
+            return db.Products.ToArray();
+
+        }
+        
+    }
+
+
+
+
     public async Task<ErrorOr<Product>> AddProductAsync(Product product)
     {
-        if (!ValidateProduct(product, out var errors))
-            return errors;
 
-        await _products.AddAsync(product);
+        var validationResult = await ValidateProductAsync(product);
+
+
+        if (validationResult.Any())
+        {
+
+            return validationResult;
+
+        }
+
+
+        using (var db = await _contextFactory.CreateDbContextAsync())
+        {
+
+            await db.Products.AddAsync(product);
+            await db.SaveChangesAsync();
+
+        }
+        
+        
         return product;
     }
     
 
+    
+    
     public async Task<ErrorOr<Product>> UpdateProductAsync(Product product)
     {
-        if (!ValidateProduct(product, out var errors))
-            return errors;
 
-        await _products.UpdateAsync(product);
+        var validationResult = await ValidateProductAsync(product);
+
+
+        if (validationResult.Any())
+        {
+
+            return validationResult;
+            
+        }
+
+
+        await using (var db = await _contextFactory.CreateDbContextAsync())
+        {
+
+            db.Update(product);
+            await db.SaveChangesAsync();
+
+        }
+
+        
         return product;
+        
     }
 
+    
+    
     
     public async Task<ErrorOr<bool>> DeleteProductAsync(Product product)
     {
-        if (await _products.GetByIdAsync(product.Id) is null)
-            return Error.NotFound(description: "Product not Found!");
 
-        await _products.DeleteAsync(product);
+        using (var db = await _contextFactory.CreateDbContextAsync())
+        {
+
+            var dbResult = await db.Products.FirstOrDefaultAsync(p => p.Id == product.Id);
+
+            
+            if (dbResult is null)
+            {
+                
+                return Error.NotFound(description: "Product not Found!");
+
+            }
+
+
+            db.Remove(product);
+            await db.SaveChangesAsync();
+            
+        }
+        
+
         return true;
+        
     }
 
     
-    private bool ValidateProduct(Product product, out List<Error> errors)
+    
+    
+    private async Task<List<Error>> ValidateProductAsync(Product product)
     {
-        errors = new();
+        
+        var errors = new List<Error>();
 
-        var productWithSameName = _products.GetAll().FirstOrDefault(p => p.Name == product.Name);
-        if (productWithSameName != null && productWithSameName.Id != product.Id)
+
+        await using (var db = await _contextFactory.CreateDbContextAsync())
         {
-            errors.Add(Error.Conflict(description: "Name must be unique!"));
+            
+            var productWithSameName = db.Products.FirstOrDefault(p => p.Name == product.Name);
+            
+            
+            if (productWithSameName != null && productWithSameName.Id != product.Id)
+            {
+                
+                errors.Add(Error.Conflict(description: "Name must be unique!"));
+                
+            }
+            
         }
-
+        
+    
         if (product.Price < 0)
         {
+            
             errors.Add(Error.Validation(description: "Price cannot be negative!"));
+            
         }
+        
         
         if (product.CategoryId == Guid.Empty)
         {
+            
             errors.Add(Error.NotFound(description: "Category cannot be null!"));
+            
         }
+
         
-        return !errors.Any();
+        return errors;
     }
 
+    
     
     
     //
     // Category methods
     //
 
-    public IEnumerable<Category> GetCategories()
-        => _categories.GetAll();
+    
+    
+    
+    public async Task<IReadOnlyList<Category>> GetCategoriesAsync()
+    {
+        
+        //todo: Add Filters
+        
+        using (var db = await _contextFactory.CreateDbContextAsync())
+        {
+            
+            return db.Categories.ToArray();
+            
+        }
+        
+    }
+    
+    
     
     
     public async Task<ErrorOr<Category>> AddCategoryAsync(Category category)
     {
-        if (!ValidateCategory(category, out var errors))
-            return errors;
 
-        if (category.Id == Guid.Empty)
+        var validationResult = await ValidateCategoryAsync(category);
+
+
+        if (validationResult.Any())
         {
-            category.Id = Guid.NewGuid();
-        }
 
-        await _categories.AddAsync(category);
+            return validationResult;
+
+        }
+        
+        
+        await using (var db = await _contextFactory.CreateDbContextAsync())
+        {
+            
+            await db.Categories.AddAsync(category);
+            await db.SaveChangesAsync();
+            
+        }
+        
+        
         return category;
+        
     }
 
+    
+    
 
     public async Task<ErrorOr<Category>> UpdateCategoryAsync(Category category)
     {
-        if (!ValidateCategory(category, out var errors))
-            return errors;
-
-        await _categories.UpdateAsync(category);
-        return category;
-    }
-    
-    
-    public async Task<ErrorOr<bool>> DeleteCategoryAsync(Category category)
-    {
-        var dbResult = await _categories.GetByIdAsync(category.Id);
         
-        if (dbResult is null)
-            return Error.NotFound(description: "Category not found!");
+        var validationResult = await ValidateCategoryAsync(category);
         
         
-        await _categories.DeleteAsync(dbResult);
-        return true;
-    }
-
-    
-    private bool ValidateCategory(Category category, out List<Error> errors)
-    {
-        errors = new();
-
-        var categoryWithSameName = _categories.GetAll().FirstOrDefault(c => c.Name == category.Name);
-        if (categoryWithSameName != null && categoryWithSameName.Id != category.Id)
+        if (validationResult.Any())
         {
-            errors.Add(Error.Conflict(description: "Name must be unique!"));
+            return validationResult;
         }
         
 
-        return !errors.Any();
+        await using (var db = await _contextFactory.CreateDbContextAsync())
+        {
+            
+            db.Categories.Update(category);
+            await db.SaveChangesAsync();
+            
+        }
+        
+        
+        return category;
+        
+    }
+    
+    
+    
+    
+    public async Task<ErrorOr<bool>> DeleteCategoryAsync(Category category) //todo: Replace with Id parameter.
+    {
+        
+        using (var db = await _contextFactory.CreateDbContextAsync())
+        {
+            
+            var dbResult = await db.Categories.FirstOrDefaultAsync(c => c.Id == category.Id);
+
+
+            if (dbResult is null)
+            {
+                
+                return Error.NotFound(description: "Category not found!");
+                
+            }
+                
+            
+            db.Categories.Remove(dbResult);
+            await db.SaveChangesAsync();
+            
+        }
+        
+        
+        return true;
+        
+    }
+
+    
+    
+    
+    private async Task<List<Error>> ValidateCategoryAsync(Category category) //todo: Replace with Id prarmater.
+    {
+        
+        var errors = new List<Error>();
+        
+        
+        using (var db = await _contextFactory.CreateDbContextAsync())
+        {
+            
+            var categoryWithSameName = db.Categories.FirstOrDefault(c => c.Name == category.Name);
+            
+            
+            if (categoryWithSameName != null && categoryWithSameName.Id != category.Id)
+            {
+                
+                errors.Add(Error.Conflict(description: "Name must be unique!"));
+                
+            }
+            
+        }
+
+
+        return errors;
+
     }
     
 }

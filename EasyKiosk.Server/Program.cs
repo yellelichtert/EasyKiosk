@@ -2,10 +2,8 @@ using System.Text;
 using EasyKiosk.Core.Context;
 using EasyKiosk.Core.Factory;
 using EasyKiosk.Core.Model.Entities;
-using EasyKiosk.Core.Repositories;
 using EasyKiosk.Core.Services;
-using EasyKiosk.Infrastructure.Auth;
-using EasyKiosk.Infrastructure.Repositories;
+using EasyKiosk.Server.Auth;
 using EasyKiosk.Server.ClientControllers;
 using EasyKiosk.Server.Manager;
 using EasyKiosk.Server.Service;
@@ -17,11 +15,6 @@ using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-//Repositories
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IDeviceRepository, DeviceRepository>();
 
 
 //Services
