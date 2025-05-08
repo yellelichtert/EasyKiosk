@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 
-namespace EasyKiosk.Infrastructure.Auth;
+namespace EasyKiosk.Server.Auth;
 
 public sealed class IdentityUserAccesor(
     UserManager<IdentityUser> userManager)
