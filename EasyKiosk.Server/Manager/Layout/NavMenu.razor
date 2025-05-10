@@ -1,23 +1,107 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">EasyKiosk.Server</a>
-    </div>
-</div>
+﻿@using EasyKiosk.Server.Manager.Components.Common.Logos
+@inject NavigationManager NavigationManager;
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
 
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Dashboard
-            </NavLink>
-        </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="Menu" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Menu
-            </NavLink>
-        </div>
-    </nav>
-</div>
+<nav class="flex items-stretch justify-center rounded-full m-3 bg-linear-65 from-purple-400 to-purple-500 drop-shadow-lg drop-shadow-purple-400/50
+            md:flex-col md:h-full md:justify-start md:rounded-none md:m-0 md:p-3 md:rounded-r-xl md:bg-neutral-50 md:from-neutral-50 md:to-neutral-50 md:drop-shadow-xl md:drop-shadow-gray-400/50">
+
+
+
+    @* Logo *@
+
+    <EasyKioskLogo Color="fill-purple-500" Class="max-sm:hidden 
+                                           md:w-full md:my-6 md:p-2
+                                             lg:mb-8"/>
+    
+    
+    
+    
+    @* Nav items *@
+    @foreach(var item in _navItems)
+    {
+                
+        <a href="@item.Href" @onclick="NavlinkClicked" class="flex flex-col p-3 m-1 rounded-full justify-stretch items-center 
+                                                       xl:flex-row xl:rounded-lg
+                                                      @(IsCurrentRoute(item.Href) ? "bg-purple-300/50  md:bg-linear-65 md:from-purple-400 md:to-purple-500 fill-neutral-50" : "fill-neutral-300")">
+            
+            
+            
+            
+            @* Icon *@
+            <DynamicComponent Type="@(IsCurrentRoute(item.Href) && item.IconSelected != null ? item.IconSelected : item.Icon)"  Parameters="@iconsParams"/>
+            
+            
+            
+            
+            @* PageTitle *@
+            <p class="hidden ml-2
+                      md:block md:text-xs
+                      xl:text-lg 
+                    @(IsCurrentRoute(item.Href) ? "text-neutral-50" : "text-gray-400")">
+                
+                
+                @item.Text
+                
+            </p>
+            
+            
+            
+            
+        </a>
+        
+    }
+    
+</nav>
+
+
+@code
+{
+    
+    //Navbar would not update when using StateHasChanged, calling it from parent
+    [Parameter] public required Action NavlinkClicked { get; set; }
+    
+    
+    private bool IsCurrentRoute(string route)
+    {
+        
+        string routeWithoutUri = NavigationManager.Uri.Remove(0, NavigationManager.BaseUri.Length);
+        return routeWithoutUri == route;
+        
+    }
+    
+    
+    
+    private NavItem[] _navItems =
+    [
+        
+        new("", "DashBoard", typeof(BiGrid1x2),typeof(BiGrid1x2Fill)),
+        new("Menu", "Menu", typeof(BiBag), typeof(BiBagFill)),
+        new("Orders", "Orders", typeof(BiReceipt)),
+        new("Staff", "Staff", typeof(BiPeople) ,typeof(BiPeopleFill))
+    ];
+
+    
+    
+
+    private Dictionary<string, object> iconsParams = new()
+    {
+        
+        {"Size", "1.5em"},
+        {"Color", "fill-purple-700"}
+    };
+    
+    
+    
+    public struct NavItem(string href, string text, Type icon, Type? iconSelected = null)
+    {
+        
+        public string Href { get; } = href;
+        public string Text { get; } = text;
+        public Type Icon { get; } = icon;
+        public Type? IconSelected { get; set; } = iconSelected;
+
+    }
+    
+
+}
