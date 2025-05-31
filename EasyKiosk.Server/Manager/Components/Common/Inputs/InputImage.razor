@@ -1,0 +1,69 @@
+@using EasyKiosk.Server.Manager.Components.Common.Misc
+<div class="flex h-full w-full relative @Class">
+
+    @if (_isLoading)
+    {
+        <Spinner Class="w-1/4"/>
+    }
+    else
+    {
+        <img src="@Img" alt="@Alt image." class="rounded-xl shadow-md object-cover">
+
+
+        @if (IsEditMode)
+        {
+            <InputFile type="file" id="selectedFile" class="hidden" OnChange="LoadImage"
+                       accept=".jpg, .jpeg, .png, .svg"/>
+
+            <div class="absolute h-full w-full" onclick="document.getElementById('selectedFile').click();">
+
+                <p class="flex justify-center items-center h-1/3 w-full absolute bottom-0 bg-linear-65 from-purple-400/80 to-purple-500/80 text-white font-black rounded-b-xl">
+                    Tap to edit</p>
+
+            </div>
+        }
+    }
+
+</div>
+
+
+
+
+@code {
+
+    [Parameter] public required string Img { get; set; }
+
+    [Parameter] public EventCallback<string> ImgChanged { get; set; }
+
+    [Parameter] public required string Alt { get; set; }
+
+    [Parameter] public bool IsEditMode { get; set; } = true;
+
+    [Parameter] public string Class { get; set; } = "";
+
+    private bool _isLoading;
+
+
+    private async Task LoadImage(InputFileChangeEventArgs args)
+    {
+        _isLoading = true;
+
+        var file = args.File;
+
+        using (var memory = new MemoryStream())
+        {
+            var read = file.OpenReadStream(1024 * 20000); //todo: Move Allowed Size to CONST
+
+            await read.CopyToAsync(memory);
+
+            var base64 = Convert.ToBase64String(memory.ToArray());
+            await ImgChanged.InvokeAsync($"data:image/{file.Name.Split(".")[1]};base64,{base64}");
+        }
+
+        _isLoading = false;
+
+        StateHasChanged();
+    }
+
+
+}
